@@ -1,0 +1,71 @@
+{
+  "case_id": "CATALOG-11",
+  "scenario": "CASE-11-MISSING-NET",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 4128,
+      "process_guid": "{55555555-0000-4000-8000-000000000060}",
+      "image": "C:\\IncidentLab\\TestApp.exe",
+      "utc": "2026-11-10 10:00:01.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 5892,
+      "process_guid": "{55555555-0000-4000-8000-000000000061}",
+      "image": "C:\\Windows\\System32\\cmd.exe",
+      "utc": "2026-11-10 10:00:07.000"
+    }
+  ],
+  "actual_registry_actions": [
+    {
+      "action": "reg_set_value",
+      "key": "HKCU\\Software\\IncidentLab\\PayloadPath",
+      "pid": 4128
+    }
+  ],
+  "actual_network_actions": [],
+  "expected_event_relationships": [
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-REG-procmon_events-R00008-a915e9",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-PROC-procmon_events-R00009-439fad",
+      "SPAWNED"
+    ]
+  ],
+  "expected_chronology": [
+    "EVT-PROC-procmon_events-R00006-301e18",
+    "EVT-PROC-sysmon_events-R00001-bc2d92",
+    "EVT-PROC-procmon_events-R00007-d83dfa",
+    "EVT-REG-procmon_events-R00008-a915e9",
+    "EVT-PROC-procmon_events-R00009-439fad",
+    "EVT-PROC-sysmon_events-R00002-ea8b0f"
+  ],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-11\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-11\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-11\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-11\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

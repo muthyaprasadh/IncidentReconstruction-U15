@@ -1,0 +1,5 @@
+Time of Day,Process Name,PID,Operation,Path,Result,Detail
+10:00:02.000 AM,loader.exe,1100,Process Create,C:\Tools\loader.exe,SUCCESS,"PID: 1100, Parent PID: 900"
+10:00:04.000 AM,cmd.exe,1200,Process Create,C:\Tools\cmd.exe,SUCCESS,"PID: 1200, Parent PID: 1100"
+10:00:06.000 AM,powershell.exe,1300,Process Create,C:\Tools\powershell.exe,SUCCESS,"PID: 1300, Parent PID: 1200"
+10:00:08.000 AM,whoami.exe,1400,Process Create,C:\Tools\whoami.exe,SUCCESS,"PID: 1400, Parent PID: 1300"

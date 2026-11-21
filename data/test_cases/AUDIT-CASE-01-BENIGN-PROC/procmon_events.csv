@@ -1,0 +1,4 @@
+Time of Day,Process Name,PID,Operation,Path,Result,Detail
+10:00:01.000 AM,svchost.exe,1004,Process Start,C:\Windows\System32\svchost.exe,SUCCESS,PID: 1004
+10:00:02.000 AM,services.exe,1008,Process Start,C:\Windows\System32\services.exe,SUCCESS,PID: 1008
+10:00:03.000 AM,explorer.exe,1012,Process Start,C:\Windows\System32\explorer.exe,SUCCESS,PID: 1012

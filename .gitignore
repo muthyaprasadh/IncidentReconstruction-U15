@@ -1,0 +1,19 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.streamlit/secrets.toml
+database/forensics.db
+output/reports/*.pdf
+output/graphs/*.json
+output/charts/*.csv
+data/raw/*
+data/processed/*
+
+database/*.db
+
+# Database and temporary backups
+database/*.db*
+*.bak
+*.backup

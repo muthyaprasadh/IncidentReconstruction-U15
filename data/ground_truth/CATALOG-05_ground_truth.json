@@ -1,0 +1,13 @@
+{
+  "case_id": "CATALOG-05",
+  "scenario_name": "CASE-05-PROC-NET-BENIGN",
+  "dataset_type": "development",
+  "incident_event_ids": [],
+  "expected_relationships": [],
+  "ground_truth_chronology": [],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-05-PROC-NET-BENIGN",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

@@ -1,0 +1,13 @@
+{
+  "case_id": "CASE-04-04_PROC_REG_BENIGN",
+  "scenario_name": "CASE-04-PROC-REG-BENIGN",
+  "dataset_type": "development",
+  "incident_event_ids": [],
+  "expected_relationships": [],
+  "ground_truth_chronology": [],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-04-PROC-REG-BENIGN",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

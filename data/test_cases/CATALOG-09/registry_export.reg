@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\IncidentLab]
+"Installed"=dword:00000001
+"PayloadPath"="C:\\IncidentLab\\payload.bin"
+

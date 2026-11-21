@@ -1,0 +1,73 @@
+{
+  "case_id": "CATALOG-17",
+  "scenario_name": "CASE-17-STAGED-PERSISTENCE",
+  "dataset_type": "development",
+  "incident_event_ids": [
+    "EVT-PROC-procmon_events-R00006-301e18",
+    "EVT-PROC-sysmon_events-R00001-bc2d92",
+    "EVT-PROC-procmon_events-R00007-d83dfa",
+    "EVT-REG-procmon_events-R00008-a915e9",
+    "EVT-REG-procmon_events-R00009-edb572",
+    "EVT-NET-sysmon_events-R00002-d142d5",
+    "EVT-NET-wireshark_packets-P00001-d7d7be",
+    "EVT-NET-wireshark_packets-P00002-7960c3",
+    "EVT-NET-wireshark_packets-P00003-2d955c",
+    "EVT-PROC-procmon_events-R00010-439fad",
+    "EVT-PROC-sysmon_events-R00003-ea8b0f"
+  ],
+  "expected_relationships": [
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-REG-procmon_events-R00008-a915e9",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-REG-procmon_events-R00009-edb572",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-sysmon_events-R00001-bc2d92",
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "EVT-NET-wireshark_packets-P00001-d7d7be",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "EVT-NET-wireshark_packets-P00002-7960c3",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "EVT-NET-wireshark_packets-P00003-2d955c",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-PROC-procmon_events-R00010-439fad",
+      "SPAWNED"
+    ]
+  ],
+  "ground_truth_chronology": [
+    "EVT-PROC-procmon_events-R00006-301e18",
+    "EVT-PROC-sysmon_events-R00001-bc2d92",
+    "EVT-PROC-procmon_events-R00007-d83dfa",
+    "EVT-REG-procmon_events-R00008-a915e9",
+    "EVT-REG-procmon_events-R00009-edb572",
+    "EVT-NET-sysmon_events-R00002-d142d5",
+    "EVT-NET-wireshark_packets-P00001-d7d7be",
+    "EVT-NET-wireshark_packets-P00002-7960c3",
+    "EVT-NET-wireshark_packets-P00003-2d955c",
+    "EVT-PROC-procmon_events-R00010-439fad",
+    "EVT-PROC-sysmon_events-R00003-ea8b0f"
+  ],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-17-STAGED-PERSISTENCE",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

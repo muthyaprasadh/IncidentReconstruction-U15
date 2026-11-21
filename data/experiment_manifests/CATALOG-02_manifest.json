@@ -1,0 +1,57 @@
+{
+  "case_id": "CATALOG-02",
+  "scenario": "CASE-02-BENIGN-NET",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [],
+  "actual_registry_actions": [],
+  "actual_network_actions": [
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.10",
+      "dst_ip": "8.8.8.8",
+      "protocol": "DNS",
+      "info": "50001 -> 53 Standard query A time.windows.com",
+      "utc": "2026-11-10 10:00:01.000"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.10",
+      "dst_ip": "8.8.8.8",
+      "protocol": "DNS",
+      "info": "50002 -> 53 Standard query A time.windows.com",
+      "utc": "2026-11-10 10:00:02.000"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.10",
+      "dst_ip": "8.8.8.8",
+      "protocol": "DNS",
+      "info": "50003 -> 53 Standard query A time.windows.com",
+      "utc": "2026-11-10 10:00:03.000"
+    }
+  ],
+  "expected_event_relationships": [],
+  "expected_chronology": [],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-02\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-02\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-02\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-02\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

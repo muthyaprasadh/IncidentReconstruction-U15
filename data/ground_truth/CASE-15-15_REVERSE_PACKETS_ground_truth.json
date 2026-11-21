@@ -1,0 +1,41 @@
+{
+  "case_id": "CASE-15-15_REVERSE_PACKETS",
+  "scenario_name": "CASE-15-REVERSE-PACKETS",
+  "dataset_type": "development",
+  "incident_event_ids": [
+    "EVT-PROC-procmon_events-R00001-08164f",
+    "EVT-PROC-sysmon_events-R00001-be56f2",
+    "EVT-NET-sysmon_events-R00002-2bfb05",
+    "EVT-NET-wireshark_packets-P00001-ac5118",
+    "EVT-NET-wireshark_packets-P00002-d0c4fc"
+  ],
+  "expected_relationships": [
+    [
+      "EVT-PROC-sysmon_events-R00001-be56f2",
+      "EVT-NET-sysmon_events-R00002-2bfb05",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-2bfb05",
+      "EVT-NET-wireshark_packets-P00001-ac5118",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-2bfb05",
+      "EVT-NET-wireshark_packets-P00002-d0c4fc",
+      "OBSERVED_IN"
+    ]
+  ],
+  "ground_truth_chronology": [
+    "EVT-PROC-procmon_events-R00001-08164f",
+    "EVT-PROC-sysmon_events-R00001-be56f2",
+    "EVT-NET-sysmon_events-R00002-2bfb05",
+    "EVT-NET-wireshark_packets-P00001-ac5118",
+    "EVT-NET-wireshark_packets-P00002-d0c4fc"
+  ],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-15-REVERSE-PACKETS",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

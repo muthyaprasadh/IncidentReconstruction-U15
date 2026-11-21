@@ -1,0 +1,83 @@
+{
+  "case_id": "CATALOG-21",
+  "scenario": "CASE-21-HELD-OUT-PID-REUSE",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 4000,
+      "process_guid": "{55555555-0000-4000-8000-000000000010}",
+      "image": "C:\\Windows\\System32\\ServiceA.exe",
+      "utc": "2026-11-10 10:00:01.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 4000,
+      "process_guid": "{55555555-0000-4000-8000-000000000011}",
+      "image": "C:\\IncidentLab\\mal_agent.exe",
+      "utc": "2026-11-10 10:00:15.000"
+    }
+  ],
+  "actual_registry_actions": [],
+  "actual_network_actions": [
+    {
+      "action": "sysmon_network_connection",
+      "pid": 4000,
+      "process_guid": "{55555555-0000-4000-8000-000000000011}",
+      "src_ip": "192.168.1.100",
+      "src_port": 49200,
+      "dst_ip": "198.51.100.99",
+      "dst_port": 443,
+      "protocol": "tcp",
+      "utc": "2026-11-10 10:00:18.000"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.100",
+      "dst_ip": "198.51.100.99",
+      "protocol": "TCP",
+      "info": "49200 -> 443 [SYN]",
+      "utc": "2026-11-10 10:00:18.050"
+    }
+  ],
+  "expected_event_relationships": [
+    [
+      "EVT-PROC-sysmon_events-R00002-7c4a21",
+      "EVT-NET-sysmon_events-R00003-b910e2",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00003-b910e2",
+      "EVT-NET-wireshark_packets-P00001-c89377",
+      "OBSERVED_IN"
+    ]
+  ],
+  "expected_chronology": [
+    "EVT-PROC-procmon_events-R00003-b097a2",
+    "EVT-PROC-sysmon_events-R00002-7c4a21",
+    "EVT-NET-sysmon_events-R00003-b910e2",
+    "EVT-NET-wireshark_packets-P00001-c89377"
+  ],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-21\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-21\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-21\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-21\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "held_out_test",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

@@ -1,0 +1,3 @@
+Time of Day,Process Name,PID,Operation,Path,Result,Detail
+10:00:01.000 AM,agentA.exe,3100,Process Create,C:\IncidentLab\agentA.exe,SUCCESS,"PID: 3100, Parent PID: 1204"
+10:00:01.050 AM,updateB.exe,3200,Process Create,C:\Program Files\Update\updateB.exe,SUCCESS,"PID: 3200, Parent PID: 1204"

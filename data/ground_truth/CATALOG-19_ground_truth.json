@@ -1,0 +1,34 @@
+{
+  "case_id": "CATALOG-19",
+  "scenario_name": "CASE-19-CONCURRENT-PROCESSES",
+  "dataset_type": "development",
+  "incident_event_ids": [
+    "EVT-PROC-procmon_events-R00001-d0c9d1",
+    "EVT-PROC-sysmon_events-R00001-c09a94",
+    "EVT-NET-sysmon_events-R00003-5f7ea9",
+    "EVT-NET-wireshark_packets-P00001-b4a236"
+  ],
+  "expected_relationships": [
+    [
+      "EVT-PROC-sysmon_events-R00001-c09a94",
+      "EVT-NET-sysmon_events-R00003-5f7ea9",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00003-5f7ea9",
+      "EVT-NET-wireshark_packets-P00001-b4a236",
+      "OBSERVED_IN"
+    ]
+  ],
+  "ground_truth_chronology": [
+    "EVT-PROC-procmon_events-R00001-d0c9d1",
+    "EVT-PROC-sysmon_events-R00001-c09a94",
+    "EVT-NET-sysmon_events-R00003-5f7ea9",
+    "EVT-NET-wireshark_packets-P00001-b4a236"
+  ],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-19-CONCURRENT-PROCESSES",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

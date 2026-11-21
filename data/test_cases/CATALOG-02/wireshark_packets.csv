@@ -1,0 +1,4 @@
+No.,Time,Source,Destination,Protocol,Length,Info
+1,2026-11-10 10:00:01.000,192.168.1.10,8.8.8.8,DNS,68,50001 -> 53 Standard query A time.windows.com
+2,2026-11-10 10:00:02.000,192.168.1.10,8.8.8.8,DNS,68,50002 -> 53 Standard query A time.windows.com
+3,2026-11-10 10:00:03.000,192.168.1.10,8.8.8.8,DNS,68,50003 -> 53 Standard query A time.windows.com

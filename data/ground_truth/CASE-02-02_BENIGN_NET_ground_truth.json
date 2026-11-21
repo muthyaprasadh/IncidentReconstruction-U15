@@ -1,0 +1,13 @@
+{
+  "case_id": "CASE-02-02_BENIGN_NET",
+  "scenario_name": "CASE-02-BENIGN-NET",
+  "dataset_type": "development",
+  "incident_event_ids": [],
+  "expected_relationships": [],
+  "ground_truth_chronology": [],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-02-BENIGN-NET",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

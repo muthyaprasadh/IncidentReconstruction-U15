@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Events>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:02.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:02.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000161}</Data>
+      <Data Name="ProcessId">1100</Data>
+      <Data Name="Image">C:\Tools\loader.exe</Data>
+      <Data Name="ParentProcessId">900</Data>
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:04.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:04.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000162}</Data>
+      <Data Name="ProcessId">1200</Data>
+      <Data Name="Image">C:\Tools\cmd.exe</Data>
+      <Data Name="ParentProcessId">1100</Data>
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:06.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:06.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000163}</Data>
+      <Data Name="ProcessId">1300</Data>
+      <Data Name="Image">C:\Tools\powershell.exe</Data>
+      <Data Name="ParentProcessId">1200</Data>
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:08.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:08.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000164}</Data>
+      <Data Name="ProcessId">1400</Data>
+      <Data Name="Image">C:\Tools\whoami.exe</Data>
+      <Data Name="ParentProcessId">1300</Data>
+    </EventData>
+  </Event>
+</Events>

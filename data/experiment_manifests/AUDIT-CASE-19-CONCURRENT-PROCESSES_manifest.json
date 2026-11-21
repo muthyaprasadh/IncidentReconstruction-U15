@@ -1,0 +1,102 @@
+{
+  "case_id": "AUDIT-CASE-19-CONCURRENT-PROCESSES",
+  "scenario": "CASE-19-CONCURRENT-PROCESSES",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 3100,
+      "process_guid": "{55555555-0000-4000-8000-000000000019}",
+      "image": "C:\\IncidentLab\\agentA.exe",
+      "utc": "2026-11-10 10:00:01.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 3200,
+      "process_guid": "{55555555-0000-4000-8000-000000000191}",
+      "image": "C:\\Program Files\\Update\\updateB.exe",
+      "utc": "2026-11-10 10:00:01.050"
+    }
+  ],
+  "actual_registry_actions": [],
+  "actual_network_actions": [
+    {
+      "action": "sysmon_network_connection",
+      "pid": 3100,
+      "process_guid": "{55555555-0000-4000-8000-000000000019}",
+      "src_ip": "192.168.1.40",
+      "src_port": 40001,
+      "dst_ip": "198.51.100.20",
+      "dst_port": 443,
+      "protocol": "tcp",
+      "utc": "2026-11-10 10:00:03.000"
+    },
+    {
+      "action": "sysmon_network_connection",
+      "pid": 3200,
+      "process_guid": "{55555555-0000-4000-8000-000000000191}",
+      "src_ip": "192.168.1.40",
+      "src_port": 40002,
+      "dst_ip": "13.107.4.50",
+      "dst_port": 443,
+      "protocol": "tcp",
+      "utc": "2026-11-10 10:00:03.080"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.40",
+      "dst_ip": "198.51.100.20",
+      "protocol": "TCP",
+      "info": "40001 -> 443 [SYN]",
+      "utc": "2026-11-10 10:00:03.015"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.40",
+      "dst_ip": "13.107.4.50",
+      "protocol": "TCP",
+      "info": "40002 -> 443 [SYN]",
+      "utc": "2026-11-10 10:00:03.090"
+    }
+  ],
+  "expected_event_relationships": [
+    [
+      "EVT-PROC-sysmon_events-R00001-c09a94",
+      "EVT-NET-sysmon_events-R00003-5f7ea9",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00003-5f7ea9",
+      "EVT-NET-wireshark_packets-P00001-b4a236",
+      "OBSERVED_IN"
+    ]
+  ],
+  "expected_chronology": [
+    "EVT-PROC-procmon_events-R00001-d0c9d1",
+    "EVT-PROC-sysmon_events-R00001-c09a94",
+    "EVT-NET-sysmon_events-R00003-5f7ea9",
+    "EVT-NET-wireshark_packets-P00001-b4a236"
+  ],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-19-CONCURRENT-PROCESSES\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-19-CONCURRENT-PROCESSES\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-19-CONCURRENT-PROCESSES\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-19-CONCURRENT-PROCESSES\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

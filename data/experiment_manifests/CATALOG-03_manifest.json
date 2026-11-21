@@ -1,0 +1,38 @@
+{
+  "case_id": "CATALOG-03",
+  "scenario": "CASE-03-BENIGN-REG",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [],
+  "actual_registry_actions": [
+    {
+      "action": "snapshot_value",
+      "key": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
+      "name": "CleanCheck"
+    }
+  ],
+  "actual_network_actions": [],
+  "expected_event_relationships": [],
+  "expected_chronology": [],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-03\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-03\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-03\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-03\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

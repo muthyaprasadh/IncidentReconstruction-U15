@@ -1,0 +1,131 @@
+{
+  "case_id": "DEMO-SYNTHETIC-20261120T123806Z",
+  "scenario": "CASE-06-MULTI-ATTACK-01",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 4128,
+      "process_guid": "{55555555-0000-4000-8000-000000000060}",
+      "image": "C:\\IncidentLab\\TestApp.exe",
+      "utc": "2026-11-10 10:00:01.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 5892,
+      "process_guid": "{55555555-0000-4000-8000-000000000061}",
+      "image": "C:\\Windows\\System32\\cmd.exe",
+      "utc": "2026-11-10 10:00:07.000"
+    }
+  ],
+  "actual_registry_actions": [
+    {
+      "action": "reg_set_value",
+      "key": "HKCU\\Software\\IncidentLab\\PayloadPath",
+      "pid": 4128
+    }
+  ],
+  "actual_network_actions": [
+    {
+      "action": "sysmon_network_connection",
+      "pid": 4128,
+      "process_guid": "{55555555-0000-4000-8000-000000000060}",
+      "src_ip": "192.168.1.105",
+      "src_port": 49822,
+      "dst_ip": "198.51.100.45",
+      "dst_port": 8080,
+      "protocol": "tcp",
+      "utc": "2026-11-10 10:00:05.000"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.105",
+      "dst_ip": "198.51.100.45",
+      "protocol": "TCP",
+      "info": "49822 -> 8080 [SYN] Seq=0",
+      "utc": "2026-11-10 10:00:05.120"
+    },
+    {
+      "action": "packet",
+      "src_ip": "198.51.100.45",
+      "dst_ip": "192.168.1.105",
+      "protocol": "TCP",
+      "info": "8080 -> 49822 [SYN, ACK] Seq=0 Ack=1",
+      "utc": "2026-11-10 10:00:05.145"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.105",
+      "dst_ip": "198.51.100.45",
+      "protocol": "TCP",
+      "info": "49822 -> 8080 [PSH, ACK] Seq=1 Ack=1 Len=446",
+      "utc": "2026-11-10 10:00:05.160"
+    }
+  ],
+  "expected_event_relationships": [
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-REG-procmon_events-R00008-a915e9",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-sysmon_events-R00001-bc2d92",
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "EVT-NET-wireshark_packets-P00001-d7d7be",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "EVT-NET-wireshark_packets-P00002-7960c3",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-d142d5",
+      "EVT-NET-wireshark_packets-P00003-2d955c",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-PROC-procmon_events-R00009-439fad",
+      "SPAWNED"
+    ]
+  ],
+  "expected_chronology": [
+    "EVT-PROC-procmon_events-R00006-301e18",
+    "EVT-PROC-sysmon_events-R00001-bc2d92",
+    "EVT-PROC-procmon_events-R00007-d83dfa",
+    "EVT-REG-procmon_events-R00008-a915e9",
+    "EVT-NET-sysmon_events-R00002-d142d5",
+    "EVT-NET-wireshark_packets-P00001-d7d7be",
+    "EVT-NET-wireshark_packets-P00002-7960c3",
+    "EVT-NET-wireshark_packets-P00003-2d955c",
+    "EVT-PROC-procmon_events-R00009-439fad",
+    "EVT-PROC-sysmon_events-R00003-ea8b0f"
+  ],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\DEMO-SYNTHETIC-20261120T123806Z\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\DEMO-SYNTHETIC-20261120T123806Z\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\DEMO-SYNTHETIC-20261120T123806Z\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\DEMO-SYNTHETIC-20261120T123806Z\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

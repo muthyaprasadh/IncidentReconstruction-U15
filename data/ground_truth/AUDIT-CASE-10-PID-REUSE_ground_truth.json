@@ -1,0 +1,34 @@
+{
+  "case_id": "AUDIT-CASE-10-PID-REUSE",
+  "scenario_name": "CASE-10-PID-REUSE",
+  "dataset_type": "development",
+  "incident_event_ids": [
+    "EVT-PROC-procmon_events-R00003-b097a2",
+    "EVT-PROC-sysmon_events-R00002-7c4a21",
+    "EVT-NET-sysmon_events-R00003-b910e2",
+    "EVT-NET-wireshark_packets-P00001-c89377"
+  ],
+  "expected_relationships": [
+    [
+      "EVT-PROC-sysmon_events-R00002-7c4a21",
+      "EVT-NET-sysmon_events-R00003-b910e2",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00003-b910e2",
+      "EVT-NET-wireshark_packets-P00001-c89377",
+      "OBSERVED_IN"
+    ]
+  ],
+  "ground_truth_chronology": [
+    "EVT-PROC-procmon_events-R00003-b097a2",
+    "EVT-PROC-sysmon_events-R00002-7c4a21",
+    "EVT-NET-sysmon_events-R00003-b910e2",
+    "EVT-NET-wireshark_packets-P00001-c89377"
+  ],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-10-PID-REUSE",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

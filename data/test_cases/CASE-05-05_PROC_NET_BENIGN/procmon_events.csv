@@ -1,0 +1,2 @@
+Time of Day,Process Name,PID,Operation,Path,Result,Detail
+10:00:01.000 AM,curl.exe,2300,Process Start,C:\Windows\System32\curl.exe,SUCCESS,

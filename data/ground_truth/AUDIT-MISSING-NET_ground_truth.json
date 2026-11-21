@@ -1,0 +1,38 @@
+{
+  "case_id": "AUDIT-MISSING-NET",
+  "scenario_name": "CASE-11-MISSING-NET",
+  "dataset_type": "development",
+  "incident_event_ids": [
+    "EVT-PROC-procmon_events-R00006-301e18",
+    "EVT-PROC-sysmon_events-R00001-bc2d92",
+    "EVT-PROC-procmon_events-R00007-d83dfa",
+    "EVT-REG-procmon_events-R00008-a915e9",
+    "EVT-PROC-procmon_events-R00009-439fad",
+    "EVT-PROC-sysmon_events-R00002-ea8b0f"
+  ],
+  "expected_relationships": [
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-REG-procmon_events-R00008-a915e9",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-procmon_events-R00006-301e18",
+      "EVT-PROC-procmon_events-R00009-439fad",
+      "SPAWNED"
+    ]
+  ],
+  "ground_truth_chronology": [
+    "EVT-PROC-procmon_events-R00006-301e18",
+    "EVT-PROC-sysmon_events-R00001-bc2d92",
+    "EVT-PROC-procmon_events-R00007-d83dfa",
+    "EVT-REG-procmon_events-R00008-a915e9",
+    "EVT-PROC-procmon_events-R00009-439fad",
+    "EVT-PROC-sysmon_events-R00002-ea8b0f"
+  ],
+  "evidence_mappings": [],
+  "incident_phases": [],
+  "notes": "Independent experiment labels for CASE-11-MISSING-NET",
+  "origin": "experiment_manifest",
+  "independent_of_correlation_engine": true
+}

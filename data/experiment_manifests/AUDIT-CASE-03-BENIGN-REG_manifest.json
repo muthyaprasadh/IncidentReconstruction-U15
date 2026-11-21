@@ -1,0 +1,38 @@
+{
+  "case_id": "AUDIT-CASE-03-BENIGN-REG",
+  "scenario": "CASE-03-BENIGN-REG",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [],
+  "actual_registry_actions": [
+    {
+      "action": "snapshot_value",
+      "key": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
+      "name": "CleanCheck"
+    }
+  ],
+  "actual_network_actions": [],
+  "expected_event_relationships": [],
+  "expected_chronology": [],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-03-BENIGN-REG\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-03-BENIGN-REG\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-03-BENIGN-REG\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-03-BENIGN-REG\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

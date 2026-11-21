@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Events>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:01.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:01.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000010}</Data>
+      <Data Name="ProcessId">4000</Data>
+      <Data Name="Image">C:\Windows\System32\ServiceA.exe</Data>
+      
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:15.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:15.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000011}</Data>
+      <Data Name="ProcessId">4000</Data>
+      <Data Name="Image">C:\IncidentLab\mal_agent.exe</Data>
+      
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>3</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:18.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:18.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000011}</Data>
+      <Data Name="ProcessId">4000</Data>
+      <Data Name="Image">C:\IncidentLab\mal_agent.exe</Data>
+      <Data Name="SourceIp">192.168.1.100</Data>
+        <Data Name="SourcePort">49200</Data>
+        <Data Name="DestinationIp">198.51.100.99</Data>
+        <Data Name="DestinationPort">443</Data>
+        <Data Name="Protocol">tcp</Data>
+        <Data Name="Initiated">true</Data>
+    </EventData>
+  </Event>
+</Events>

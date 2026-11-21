@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Events>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:01.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:01.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000019}</Data>
+      <Data Name="ProcessId">3100</Data>
+      <Data Name="Image">C:\IncidentLab\agentA.exe</Data>
+      <Data Name="ParentProcessId">1204</Data>
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:01.050Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:01.050</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000191}</Data>
+      <Data Name="ProcessId">3200</Data>
+      <Data Name="Image">C:\Program Files\Update\updateB.exe</Data>
+      <Data Name="ParentProcessId">1204</Data>
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>3</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:03.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:03.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000019}</Data>
+      <Data Name="ProcessId">3100</Data>
+      <Data Name="Image">C:\IncidentLab\agentA.exe</Data>
+      <Data Name="SourceIp">192.168.1.40</Data>
+        <Data Name="SourcePort">40001</Data>
+        <Data Name="DestinationIp">198.51.100.20</Data>
+        <Data Name="DestinationPort">443</Data>
+        <Data Name="Protocol">tcp</Data>
+        <Data Name="Initiated">true</Data>
+    </EventData>
+  </Event>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>3</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:03.080Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:03.080</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000191}</Data>
+      <Data Name="ProcessId">3200</Data>
+      <Data Name="Image">C:\Program Files\Update\updateB.exe</Data>
+      <Data Name="SourceIp">192.168.1.40</Data>
+        <Data Name="SourcePort">40002</Data>
+        <Data Name="DestinationIp">13.107.4.50</Data>
+        <Data Name="DestinationPort">443</Data>
+        <Data Name="Protocol">tcp</Data>
+        <Data Name="Initiated">true</Data>
+    </EventData>
+  </Event>
+</Events>

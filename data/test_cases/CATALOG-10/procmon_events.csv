@@ -1,0 +1,4 @@
+Time of Day,Process Name,PID,Operation,Path,Result,Detail
+10:00:01.000 AM,ServiceA.exe,4000,Process Start,C:\Windows\System32\ServiceA.exe,SUCCESS,
+10:00:05.000 AM,ServiceA.exe,4000,Process Exit,C:\Windows\System32\ServiceA.exe,SUCCESS,
+10:00:15.000 AM,mal_agent.exe,4000,Process Start,C:\IncidentLab\mal_agent.exe,SUCCESS,

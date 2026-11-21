@@ -1,0 +1,86 @@
+{
+  "case_id": "CATALOG-16",
+  "scenario": "CASE-16-DEEP-PROCESS-TREE",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 1100,
+      "process_guid": "{55555555-0000-4000-8000-000000000161}",
+      "image": "C:\\Tools\\loader.exe",
+      "utc": "2026-11-10 10:00:02.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 1200,
+      "process_guid": "{55555555-0000-4000-8000-000000000162}",
+      "image": "C:\\Tools\\cmd.exe",
+      "utc": "2026-11-10 10:00:04.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 1300,
+      "process_guid": "{55555555-0000-4000-8000-000000000163}",
+      "image": "C:\\Tools\\powershell.exe",
+      "utc": "2026-11-10 10:00:06.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 1400,
+      "process_guid": "{55555555-0000-4000-8000-000000000164}",
+      "image": "C:\\Tools\\whoami.exe",
+      "utc": "2026-11-10 10:00:08.000"
+    }
+  ],
+  "actual_registry_actions": [],
+  "actual_network_actions": [],
+  "expected_event_relationships": [
+    [
+      "EVT-PROC-procmon_events-R00001-e95747",
+      "EVT-PROC-procmon_events-R00002-a24562",
+      "SPAWNED"
+    ],
+    [
+      "EVT-PROC-procmon_events-R00002-a24562",
+      "EVT-PROC-procmon_events-R00003-dd806e",
+      "SPAWNED"
+    ],
+    [
+      "EVT-PROC-procmon_events-R00003-dd806e",
+      "EVT-PROC-procmon_events-R00004-da73ce",
+      "SPAWNED"
+    ]
+  ],
+  "expected_chronology": [
+    "EVT-PROC-procmon_events-R00001-e95747",
+    "EVT-PROC-sysmon_events-R00001-8592fa",
+    "EVT-PROC-procmon_events-R00002-a24562",
+    "EVT-PROC-sysmon_events-R00002-34a6ae",
+    "EVT-PROC-procmon_events-R00003-dd806e",
+    "EVT-PROC-sysmon_events-R00003-d1a117",
+    "EVT-PROC-procmon_events-R00004-da73ce",
+    "EVT-PROC-sysmon_events-R00004-a68002"
+  ],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-16\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-16\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-16\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CATALOG-16\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

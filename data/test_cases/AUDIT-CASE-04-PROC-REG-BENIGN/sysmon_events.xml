@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Events>
+  <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+    <System>
+      <Provider Name="Microsoft-Windows-Sysmon"/>
+      <EventID>1</EventID>
+      <TimeCreated SystemTime="2026-11-10T10:00:01.000Z"/>
+    </System>
+    <EventData>
+      <Data Name="UtcTime">2026-11-10 10:00:01.000</Data>
+      <Data Name="ProcessGuid">{55555555-0000-4000-8000-000000000004}</Data>
+      <Data Name="ProcessId">2200</Data>
+      <Data Name="Image">C:\Windows\System32\notepad.exe</Data>
+      <Data Name="ParentProcessId">1012</Data>
+    </EventData>
+  </Event>
+</Events>

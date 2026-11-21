@@ -1,0 +1,60 @@
+{
+  "case_id": "AUDIT-CASE-05-PROC-NET-BENIGN",
+  "scenario": "CASE-05-PROC-NET-BENIGN",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 2300,
+      "process_guid": "{55555555-0000-4000-8000-000000000005}",
+      "image": "C:\\Windows\\System32\\curl.exe",
+      "utc": "2026-11-10 10:00:01.000"
+    }
+  ],
+  "actual_registry_actions": [],
+  "actual_network_actions": [
+    {
+      "action": "sysmon_network_connection",
+      "pid": 2300,
+      "process_guid": "{55555555-0000-4000-8000-000000000005}",
+      "src_ip": "192.168.1.20",
+      "src_port": 51000,
+      "dst_ip": "93.184.216.34",
+      "dst_port": 80,
+      "protocol": "tcp",
+      "utc": "2026-11-10 10:00:02.000"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.20",
+      "dst_ip": "93.184.216.34",
+      "protocol": "TCP",
+      "info": "51000 -> 80 [SYN]",
+      "utc": "2026-11-10 10:00:02.020"
+    }
+  ],
+  "expected_event_relationships": [],
+  "expected_chronology": [],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-05-PROC-NET-BENIGN\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-05-PROC-NET-BENIGN\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-05-PROC-NET-BENIGN\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "D:\\IncidentReconstruction_U15_Completed\\data\\test_cases\\AUDIT-CASE-05-PROC-NET-BENIGN\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

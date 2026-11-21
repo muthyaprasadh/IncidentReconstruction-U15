@@ -1,0 +1,9 @@
+Time of Day,Process Name,PID,Operation,Path,Result,Detail
+09:59:52.000 AM,svchost.exe,844,RegOpenKey,HKLM\System\CurrentControlSet\Services\Schedule,SUCCESS,
+09:59:54.000 AM,svchost.exe,844,RegOpenKey,HKLM\System\CurrentControlSet\Services\Schedule,SUCCESS,
+09:59:56.000 AM,svchost.exe,844,RegOpenKey,HKLM\System\CurrentControlSet\Services\Schedule,SUCCESS,
+09:59:58.000 AM,svchost.exe,844,RegOpenKey,HKLM\System\CurrentControlSet\Services\Schedule,SUCCESS,
+10:00:00.000 AM,svchost.exe,844,RegOpenKey,HKLM\System\CurrentControlSet\Services\Schedule,SUCCESS,
+10:00:01.000 AM,TestApp.exe,4128,Process Create,C:\IncidentLab\TestApp.exe,SUCCESS,"PID: 4128, Parent PID: 1204"
+10:00:02.000 AM,TestApp.exe,4128,CreateFile,C:\IncidentLab\payload.bin,SUCCESS,Disposition: Create
+10:00:07.000 AM,cmd.exe,5892,Process Create,C:\Windows\System32\cmd.exe,SUCCESS,"PID: 5892, Parent PID: 4128"

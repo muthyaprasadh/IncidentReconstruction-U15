@@ -1,0 +1,90 @@
+{
+  "case_id": "CASE-15-15_REVERSE_PACKETS",
+  "scenario": "CASE-15-REVERSE-PACKETS",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 2222,
+      "process_guid": "{55555555-0000-4000-8000-000000000015}",
+      "image": "C:\\Windows\\System32\\curl.exe",
+      "utc": "2026-11-10 10:00:01.000"
+    }
+  ],
+  "actual_registry_actions": [],
+  "actual_network_actions": [
+    {
+      "action": "sysmon_network_connection",
+      "pid": 2222,
+      "process_guid": "{55555555-0000-4000-8000-000000000015}",
+      "src_ip": "192.168.1.50",
+      "src_port": 50123,
+      "dst_ip": "203.0.113.10",
+      "dst_port": 80,
+      "protocol": "tcp",
+      "utc": "2026-11-10 10:00:02.000"
+    },
+    {
+      "action": "packet",
+      "src_ip": "192.168.1.50",
+      "dst_ip": "203.0.113.10",
+      "protocol": "TCP",
+      "info": "50123 -> 80 [SYN]",
+      "utc": "2026-11-10 10:00:02.010"
+    },
+    {
+      "action": "packet",
+      "src_ip": "203.0.113.10",
+      "dst_ip": "192.168.1.50",
+      "protocol": "TCP",
+      "info": "80 -> 50123 [SYN, ACK]",
+      "utc": "2026-11-10 10:00:02.035"
+    }
+  ],
+  "expected_event_relationships": [
+    [
+      "EVT-PROC-sysmon_events-R00001-be56f2",
+      "EVT-NET-sysmon_events-R00002-2bfb05",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-2bfb05",
+      "EVT-NET-wireshark_packets-P00001-ac5118",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-sysmon_events-R00002-2bfb05",
+      "EVT-NET-wireshark_packets-P00002-d0c4fc",
+      "OBSERVED_IN"
+    ]
+  ],
+  "expected_chronology": [
+    "EVT-PROC-procmon_events-R00001-08164f",
+    "EVT-PROC-sysmon_events-R00001-be56f2",
+    "EVT-NET-sysmon_events-R00002-2bfb05",
+    "EVT-NET-wireshark_packets-P00001-ac5118",
+    "EVT-NET-wireshark_packets-P00002-d0c4fc"
+  ],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-15-15_REVERSE_PACKETS\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-15-15_REVERSE_PACKETS\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-15-15_REVERSE_PACKETS\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-15-15_REVERSE_PACKETS\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}

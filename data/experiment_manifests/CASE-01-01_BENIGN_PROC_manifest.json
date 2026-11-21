@@ -1,0 +1,54 @@
+{
+  "case_id": "CASE-01-01_BENIGN_PROC",
+  "scenario": "CASE-01-BENIGN-PROC",
+  "experiment_start": "2026-11-10T10:00:00+00:00",
+  "experiment_end": "2026-11-10T10:02:00+00:00",
+  "actual_process_actions": [
+    {
+      "action": "process_create",
+      "pid": 1004,
+      "process_guid": "{55555555-0000-4000-8000-000000000001}",
+      "image": "C:\\Windows\\System32\\svchost.exe",
+      "utc": "2026-11-10 10:00:01.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 1008,
+      "process_guid": "{55555555-0000-4000-8000-000000000002}",
+      "image": "C:\\Windows\\System32\\services.exe",
+      "utc": "2026-11-10 10:00:02.000"
+    },
+    {
+      "action": "process_create",
+      "pid": 1012,
+      "process_guid": "{55555555-0000-4000-8000-000000000003}",
+      "image": "C:\\Windows\\System32\\explorer.exe",
+      "utc": "2026-11-10 10:00:03.000"
+    }
+  ],
+  "actual_registry_actions": [],
+  "actual_network_actions": [],
+  "expected_event_relationships": [],
+  "expected_chronology": [],
+  "evidence_file_references": [
+    {
+      "role": "procmon",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-01-01_BENIGN_PROC\\procmon_events.csv"
+    },
+    {
+      "role": "registry",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-01-01_BENIGN_PROC\\registry_export.reg"
+    },
+    {
+      "role": "wireshark",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-01-01_BENIGN_PROC\\wireshark_packets.csv"
+    },
+    {
+      "role": "sysmon_xml",
+      "path": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\test_cases\\CASE-01-01_BENIGN_PROC\\sysmon_events.xml"
+    }
+  ],
+  "dataset_type": "development",
+  "recorded_independently_of_correlation_engine": true,
+  "notes": "Recorded by the experiment generator before any correlation run."
+}
