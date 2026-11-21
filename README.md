@@ -26,11 +26,11 @@ Real research evaluation requires independently executed Windows experiments, ac
 
 ### Network attribution rule
 
-Wireshark records packets, not Windows PIDs. The system never attributes a packet to a process using timestamps alone. Process-to-network linkage requires Sysmon Event ID 3 endpoint telemetry. Sysmon-to-Wireshark corroboration requires a complete exact five-tuple (source IP, destination IP, source port, destination port, transport protocol), forward or reverse direction, and valid timestamps within the configured window. Missing tuple fields do not act as wildcards.
+Wireshark records packets, not Windows PIDs. The system never attributes a packet to a process using timestamps alone. Process-to-network linkage requires Sysmon Event ID 3 endpoint telemetry. Sysmon-to-Wireshark corroboration requires a complete exact five-tuple (source IP, destination IP, source port, destination port, transport protocol), forward or reverse direction, and either a reliable timestamp within the configured window or a packet timestamp inside the bounded `UtcTime`/`SystemTime` uncertainty interval. Uncertain intervals wider than the configured window are not used. If a Sysmon event has no ProcessGuid and no reliable scalar timestamp, PID attribution additionally requires a matching packet observed while that PID's validated process epoch is active. Missing tuple fields do not act as wildcards.
 
 ### Timestamp rule
 
-Procmon `Time of Day` is local wall-clock time. The investigator must supply the case collection date and capture timezone (the UI defaults to `Asia/Kolkata`, which should be changed if the capture machine used another timezone). Wireshark relative capture offsets are not absolute timestamps; export `frame.time_epoch` or use PCAP/PCAPNG for absolute packet times. Sysmon preserves both `UtcTime` and XML `SystemTime`; it warns and omits the chronology timestamp when the two differ by more than one second. A valid timezone-aware XML `SystemTime` is used as a warned fallback when `UtcTime` cannot be parsed.
+Procmon `Time of Day` is local wall-clock time. The investigator must supply the case collection date and capture timezone (the UI defaults to `Asia/Kolkata`, which should be changed if the capture machine used another timezone). Wireshark relative capture offsets are not absolute timestamps; export `frame.time_epoch` or use PCAP/PCAPNG for absolute packet times. Sysmon preserves both `UtcTime` and XML `SystemTime`; it warns and omits the chronology timestamp when the two differ by more than one second, retaining their range as explicit uncertainty metadata. A valid timezone-aware XML `SystemTime` is used as a warned fallback when `UtcTime` cannot be parsed.
 
 ## Project layout
 

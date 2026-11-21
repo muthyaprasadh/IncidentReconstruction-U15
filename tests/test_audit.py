@@ -21,7 +21,7 @@ from normalization.normalizer import Normalizer
 from parsers.procmon_parser import ProcmonParser
 from parsers.registry_parser import RegistryParser
 from parsers.network_parser import NetworkParser
-from parsers.sysmon_parser import SysmonParser
+from parsers.sysmon_parser import SysmonParser, sysmon_event_id_from_fields
 from database.models import NormalizedEvent, EventRelationship
 from correlation.correlation_engine import CorrelationEngine
 from correlation.process_correlation import ProcessLifetimeTracker, ProcessCorrelator
@@ -108,11 +108,31 @@ class TestForensicAuditAndIntegrity(unittest.TestCase):
         self.assertEqual(discrepant.metadata["UtcTime"], "2026-11-10 10:00:00.000Z")
         self.assertEqual(discrepant.metadata["SystemTime"], "2026-11-10T10:00:02.000Z")
         self.assertEqual(discrepant.metadata["timestamp_delta_ms"], 2000.0)
+        self.assertEqual(
+            discrepant.metadata["timestamp_uncertainty_start"],
+            "2026-11-10T10:00:00+00:00"
+        )
+        self.assertEqual(
+            discrepant.metadata["timestamp_uncertainty_end"],
+            "2026-11-10T10:00:02+00:00"
+        )
         self.assertEqual(discrepant.process_guid, "")
         self.assertEqual(discrepant.metadata["ProcessGuid"], "")
         self.assertEqual(
             discrepant.metadata["ProcessGuidRaw"],
             "00000000-0000-0000-0000-000000000000"
+        )
+        self.assertEqual(
+            discrepant.event_id,
+            sysmon_event_id_from_fields(
+                "sysmon.xml",
+                1,
+                1,
+                "2026-11-10 10:00:00.000Z",
+                "00000000-0000-0000-0000-000000000000",
+                10,
+                "C:\\test.exe"
+            )
         )
         self.assertTrue(any("timestamp omitted from chronology" in warning for warning in parser.warnings))
         self.assertTrue(any("process attribution is unavailable" in warning for warning in parser.warnings))
@@ -124,6 +144,139 @@ class TestForensicAuditAndIntegrity(unittest.TestCase):
         self.assertTrue(any("using XML SystemTime for chronology" in warning for warning in parser.warnings))
         self.assertEqual(naive_system_time.timestamp, "")
         self.assertTrue(any("SystemTime is not timezone-aware" in warning for warning in parser.warnings))
+
+    def test_sysmon_network_pid_attribution_requires_reliable_time(self):
+        process_event = NormalizedEvent(
+            event_id="EVT-PROC-START-01",
+            case_id="SYS-TIME-TEST",
+            timestamp="2026-11-10T10:00:00Z",
+            original_timestamp="10:00:00Z",
+            source="process",
+            event_type="PROCESS_START",
+            pid=4242,
+            process_name="curl.exe"
+        )
+        sysmon_event = NormalizedEvent(
+            event_id="EVT-SYSMON-NET-01",
+            case_id="SYS-TIME-TEST",
+            timestamp="",
+            original_timestamp="2026-11-10 10:00:01Z",
+            source="network",
+            event_type="NET_CONNECT",
+            pid=4242,
+            process_name="<unknown process>",
+            src_ip="192.0.2.10",
+            dst_ip="198.51.100.20",
+            src_port=50000,
+            dst_port=443,
+            protocol="TCP",
+            process_guid="",
+            metadata={
+                "sysmon_event_id": 3,
+                "ProcessGuid": "",
+                "ProcessGuidRaw": "00000000-0000-0000-0000-000000000000"
+            }
+        )
+        tracker = ProcessLifetimeTracker()
+        tracker.register_events([process_event, sysmon_event])
+
+        relationships = NetworkCorrelator.correlate_network_events(
+            [process_event, sysmon_event],
+            "SYS-TIME-TEST",
+            tracker
+        )
+
+        self.assertFalse(
+            any(rel.target_event_id == sysmon_event.event_id for rel in relationships),
+            "An untimed Sysmon event without a ProcessGuid must not be attributed by PID alone."
+        )
+
+    def test_sysmon_network_correlates_inside_timestamp_uncertainty_interval(self):
+        process_event = NormalizedEvent(
+            event_id="EVT-PROC-START-INTERVAL",
+            case_id="SYS-TIME-INTERVAL",
+            timestamp="2026-11-10T10:00:00Z",
+            original_timestamp="10:00:00Z",
+            source="process",
+            event_type="PROCESS_START",
+            pid=4242,
+            process_name="curl.exe"
+        )
+        sysmon_event = NormalizedEvent(
+            event_id="EVT-SYSMON-NET-INTERVAL",
+            case_id="SYS-TIME-INTERVAL",
+            timestamp="",
+            original_timestamp="10:00:00Z",
+            source="network",
+            event_type="NET_CONNECT",
+            pid=4242,
+            process_name="<unknown process>",
+            src_ip="192.0.2.10",
+            dst_ip="198.51.100.20",
+            src_port=50000,
+            dst_port=443,
+            protocol="TCP",
+            metadata={
+                "sysmon_event_id": 3,
+                "timestamp_uncertainty_start": "2026-11-10T10:00:00Z",
+                "timestamp_uncertainty_end": "2026-11-10T10:00:04Z"
+            }
+        )
+        matching_packet = NormalizedEvent(
+            event_id="EVT-WIRE-IN-INTERVAL",
+            case_id="SYS-TIME-INTERVAL",
+            timestamp="2026-11-10T10:00:02Z",
+            original_timestamp="10:00:02Z",
+            source="network",
+            event_type="NET_PACKET",
+            src_ip="192.0.2.10",
+            dst_ip="198.51.100.20",
+            src_port=50000,
+            dst_port=443,
+            protocol="TCP",
+            metadata={"frame_number": "10"}
+        )
+        outside_packet = NormalizedEvent(
+            event_id="EVT-WIRE-OUTSIDE-INTERVAL",
+            case_id="SYS-TIME-INTERVAL",
+            timestamp="2026-11-10T10:00:05Z",
+            original_timestamp="10:00:05Z",
+            source="network",
+            event_type="NET_PACKET",
+            src_ip="192.0.2.10",
+            dst_ip="198.51.100.20",
+            src_port=50000,
+            dst_port=443,
+            protocol="TCP",
+            metadata={"frame_number": "11"}
+        )
+        events = [process_event, sysmon_event, matching_packet, outside_packet]
+        tracker = ProcessLifetimeTracker()
+        tracker.register_events(events)
+
+        relationships = NetworkCorrelator.correlate_network_events(
+            events,
+            "SYS-TIME-INTERVAL",
+            tracker
+        )
+        connected = [
+            rel for rel in relationships
+            if rel.relationship_type == "CONNECTED_TO"
+        ]
+        observed = [
+            rel for rel in relationships
+            if rel.relationship_type == "OBSERVED_IN"
+        ]
+
+        self.assertEqual(len(connected), 1)
+        self.assertEqual(connected[0].source_event_id, process_event.event_id)
+        self.assertIn("WireFrame:10", connected[0].supporting_identifiers)
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(observed[0].target_event_id, matching_packet.event_id)
+        self.assertIn(
+            "TimestampInterval:2026-11-10T10:00:00+00:00..2026-11-10T10:00:04+00:00",
+            observed[0].supporting_identifiers
+        )
 
     def test_02_registry_snapshot_interpretation(self):
         """Priority 2: .reg snapshots must not receive artificial modification timestamps."""

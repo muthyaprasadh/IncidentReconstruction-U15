@@ -281,6 +281,14 @@ class SysmonParser:
                 f"XML Event {row_idx}: UtcTime and SystemTime differ by "
                 f"{timestamp_delta_ms} ms; timestamp omitted from chronology."
             )
+            system_iso_ts = timestamp_metadata["SystemTimeNormalized"]
+            if system_iso_ts:
+                timestamp_bounds = sorted(
+                    (utc_iso_ts, system_iso_ts),
+                    key=_parse_aware_datetime
+                )
+                timestamp_metadata["timestamp_uncertainty_start"] = timestamp_bounds[0]
+                timestamp_metadata["timestamp_uncertainty_end"] = timestamp_bounds[1]
             iso_ts = ""
             timestamp_source = ""
 
@@ -346,7 +354,7 @@ class SysmonParser:
         evidence_ref = f"Event {row_idx}"
 
         payload = (
-            f"{sysmon_eid}|{utc_time}|{process_guid}|{pid}|{image}|"
+            f"{sysmon_eid}|{utc_time}|{raw_process_guid}|{pid}|{image}|"
             f"{src_ip}|{src_port}|{dst_ip}|{dst_port}|{protocol}|{initiated}"
         )
 
