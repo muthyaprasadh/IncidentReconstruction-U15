@@ -2,7 +2,7 @@
   "case_id": "EXP-03-REPEAT-REAL",
   "dataset_type": "real_world",
   "evaluation_type": "exact event-relationship comparison on annotated event subgraph",
-  "evaluated_at": "2026-11-21T09:39:41.175412+00:00",
+  "evaluated_at": "2026-11-21T10:37:49.871580+00:00",
   "temporal_window_seconds": 5.0,
   "normalized_event_count": 386379,
   "incident_event_count": 31,
@@ -17,7 +17,7 @@
   "methods": [
     {
       "method": "Baseline 1: Process-only",
-      "runtime_seconds": 0.252,
+      "runtime_seconds": 0.176,
       "total_predicted_relationships": 18,
       "expected_relationship_count": 30,
       "scoped_unique_prediction_count": 2,
@@ -190,7 +190,7 @@
     },
     {
       "method": "Baseline 2: Process + Registry",
-      "runtime_seconds": 50.371,
+      "runtime_seconds": 44.829,
       "total_predicted_relationships": 187354,
       "expected_relationship_count": 30,
       "scoped_unique_prediction_count": 9,
@@ -307,120 +307,19 @@
     },
     {
       "method": "Baseline 3: Conventional all-source",
-      "runtime_seconds": 47.818,
-      "total_predicted_relationships": 178036,
+      "runtime_seconds": 52.738,
+      "total_predicted_relationships": 178069,
       "expected_relationship_count": 30,
-      "scoped_unique_prediction_count": 10,
-      "exact_expected_relationship_matches": 10,
-      "expected_link_coverage": 0.3333,
+      "scoped_unique_prediction_count": 30,
+      "exact_expected_relationship_matches": 30,
+      "expected_link_coverage": 1.0,
       "unreviewed_scoped_relationships": [],
-      "missed_expected_relationships": [
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
-          "OBSERVED_IN"
-        ],
-        [
-          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
-          "EVT-NET-exp-03-repeat-wireshark-P13887-98c837",
-          "OBSERVED_IN"
-        ]
-      ]
+      "missed_expected_relationships": []
     },
     {
       "method": "Proposed: Provenance graph",
-      "runtime_seconds": 45.351,
-      "total_predicted_relationships": 178066,
+      "runtime_seconds": 56.04,
+      "total_predicted_relationships": 187388,
       "expected_relationship_count": 30,
       "scoped_unique_prediction_count": 30,
       "exact_expected_relationship_matches": 30,

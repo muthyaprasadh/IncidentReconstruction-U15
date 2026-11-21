@@ -1,4 +1,4 @@
-"""
+﻿"""
 hai
 Database access and management module for U-15 Incident Reconstruction.
 Uses SQLite for zero-configuration, robust local forensic evidence persistence.
@@ -226,6 +226,9 @@ def init_db():
             conn.execute("CREATE INDEX IF NOT EXISTS idx_rel_case ON relationships (case_id);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_rel_source ON relationships (source_event_id);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_rel_target ON relationships (target_event_id);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_events_case_time_id ON events (case_id, timestamp, event_id);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_rel_case_source ON relationships (case_id, source_event_id);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_rel_case_target ON relationships (case_id, target_event_id);")
         logger.info("Database initialized successfully at %s", DB_PATH)
     finally:
         conn.close()
@@ -458,16 +461,64 @@ def replace_case_ingestion(
     finally:
         conn.close()
 
-def get_event_count(case_id: str) -> int:
+def _build_event_filters(
+    case_id: str,
+    source: Optional[str] = None,
+    search: Optional[str] = None
+) -> Tuple[str, List[Any]]:
+    query = " WHERE case_id = ?"
+    params: List[Any] = [case_id]
+
+    if source and source.lower() != "all":
+        query += " AND source = ?"
+        params.append(source)
+
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        searchable_columns = [
+            "event_id",
+            "timestamp",
+            "original_timestamp",
+            "event_type",
+            "source",
+            "process_name",
+            "CAST(pid AS TEXT)",
+            "CAST(ppid AS TEXT)",
+            "process_guid",
+            "registry_key",
+            "registry_operation",
+            "src_ip",
+            "dst_ip",
+            "CAST(src_port AS TEXT)",
+            "CAST(dst_port AS TEXT)",
+            "protocol",
+            "file_path",
+            "evidence_file",
+            "evidence_reference",
+        ]
+        conditions = [f"{column} LIKE ?" for column in searchable_columns]
+        query += " AND (" + " OR ".join(conditions) + ")"
+        params.extend([term] * len(searchable_columns))
+
+    return query, params
+
+
+def get_event_count(
+    case_id: str,
+    source: Optional[str] = None,
+    search: Optional[str] = None,
+) -> int:
     conn = get_db_connection()
     try:
+        filters, params = _build_event_filters(case_id, source, search)
         row = conn.execute(
-            "SELECT COUNT(*) AS event_count FROM events WHERE case_id = ?;",
-            (case_id,),
+            "SELECT COUNT(*) AS event_count FROM events" + filters,
+            tuple(params),
         ).fetchone()
-        return int(row["event_count"])
+        return int(row["event_count"]) if row else 0
     finally:
         conn.close()
+
 
 def get_most_correlated_events(case_id: str, limit: int) -> List[Dict[str, Any]]:
     if limit < 1:
@@ -518,28 +569,46 @@ def get_events(
     source: Optional[str] = None,
     limit: Optional[int] = None,
     newest_first: bool = False,
+    offset: int = 0,
+    search: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     conn = get_db_connection()
     try:
-        query = "SELECT * FROM events WHERE case_id = ?"
-        params: List[Any] = [case_id]
-        if source:
-            query += " AND source = ?"
-            params.append(source)
-        query += " ORDER BY timestamp DESC" if newest_first else " ORDER BY timestamp ASC"
-        if limit:
-            query += f" LIMIT {int(limit)}"
-        cursor = conn.execute(query, tuple(params))
+        filters, params = _build_event_filters(case_id, source, search)
+        query = "SELECT * FROM events" + filters
+
+        direction = "DESC" if newest_first else "ASC"
+        query += f" ORDER BY timestamp {direction}, event_id {direction}"
+
+        if limit is not None:
+            query += " LIMIT ? OFFSET ?"
+            params.extend([max(1, int(limit)), max(0, int(offset))])
+        elif offset > 0:
+            query += " LIMIT -1 OFFSET ?"
+            params.append(max(0, int(offset)))
+
+        rows = conn.execute(query, tuple(params)).fetchall()
         results = []
-        for row in cursor.fetchall():
-            d = dict(row)
-            d["metadata"] = json.loads(d["metadata_json"]) if d.get("metadata_json") else {}
-            if not d.get("process_guid"):
-                d["process_guid"] = d["metadata"].get("ProcessGuid") or d["metadata"].get("process_guid") or ""
-            results.append(d)
+
+        for row in rows:
+            event = dict(row)
+            event["metadata"] = (
+                json.loads(event["metadata_json"])
+                if event.get("metadata_json")
+                else {}
+            )
+            if not event.get("process_guid"):
+                event["process_guid"] = (
+                    event["metadata"].get("ProcessGuid")
+                    or event["metadata"].get("process_guid")
+                    or ""
+                )
+            results.append(event)
+
         return results
     finally:
         conn.close()
+
 
 def get_event_by_id(event_id: str, case_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
     conn = get_db_connection()
@@ -599,29 +668,47 @@ def insert_relationships_batch(relationships: List[EventRelationship]) -> int:
 def get_relationships(
     case_id: str,
     event_ids: Optional[List[str]] = None,
+    include_external: bool = False,
 ) -> List[Dict[str, Any]]:
     conn = get_db_connection()
     try:
         query = "SELECT * FROM relationships WHERE case_id = ?"
         params: List[Any] = [case_id]
+
         if event_ids is not None:
             unique_event_ids = list(dict.fromkeys(event_ids))
             if not unique_event_ids:
                 return []
+
             placeholders = ",".join("?" for _ in unique_event_ids)
-            query += (
-                f" AND source_event_id IN ({placeholders})"
-                f" AND target_event_id IN ({placeholders})"
-            )
+
+            if include_external:
+                query += (
+                    f" AND (source_event_id IN ({placeholders})"
+                    f" OR target_event_id IN ({placeholders}))"
+                )
+            else:
+                query += (
+                    f" AND source_event_id IN ({placeholders})"
+                    f" AND target_event_id IN ({placeholders})"
+                )
+
             params.extend(unique_event_ids)
             params.extend(unique_event_ids)
+
         cursor = conn.execute(query + ";", tuple(params))
         results = []
         for row in cursor.fetchall():
-            d = dict(row)
-            d["supporting_identifiers"] = json.loads(d["supporting_identifiers"]) if d.get("supporting_identifiers") else []
-            d["evidence_sources"] = json.loads(d["evidence_sources"]) if d.get("evidence_sources") else []
-            results.append(d)
+            item = dict(row)
+            item["supporting_identifiers"] = (
+                json.loads(item["supporting_identifiers"])
+                if item.get("supporting_identifiers") else []
+            )
+            item["evidence_sources"] = (
+                json.loads(item["evidence_sources"])
+                if item.get("evidence_sources") else []
+            )
+            results.append(item)
         return results
     finally:
         conn.close()
@@ -739,3 +826,7 @@ def get_dashboard_stats() -> Dict[str, Any]:
 
 # Initialize DB on module import
 init_db()
+
+
+
+

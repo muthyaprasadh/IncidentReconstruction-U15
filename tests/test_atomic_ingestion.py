@@ -5,6 +5,10 @@ transaction rollback, multi-case isolation, and ground truth preservation.
 import unittest
 import os
 import sqlite3
+import json
+import hashlib
+import tempfile
+from pathlib import Path
 from typing import List, Dict, Any
 
 from database.db import (
@@ -21,6 +25,11 @@ from database.db import (
     get_evaluation_runs
 )
 from database.models import NormalizedEvent, EvidenceFile, Case
+import database.db as database_module
+from parsers.procmon_parser import ProcmonParser
+from parsers.registry_parser import RegistryParser
+from parsers.sysmon_parser import SysmonParser
+from parsers.network_parser import NetworkParser
 from experiments.dataset_catalog import (
     AVAILABLE_SCENARIOS,
     DEVELOPMENT_SCENARIOS,
@@ -31,10 +40,77 @@ from experiments.dataset_catalog import (
 class TestAtomicIngestionAndIntegrity(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls._temporary_directory = tempfile.TemporaryDirectory(prefix="u15-atomic-tests-")
+        cls._original_db_path = database_module.DB_PATH
+        database_module.DB_PATH = Path(cls._temporary_directory.name) / "test_forensics.db"
         init_db()
+        cls._seed_diagnostic_case()
+
+    @classmethod
+    def tearDownClass(cls):
+        database_module.DB_PATH = cls._original_db_path
+        cls._temporary_directory.cleanup()
+
+    @classmethod
+    def _seed_diagnostic_case(cls):
+        case_id = "CASE-06-DIAGNOSTIC"
+        fixture_dir = Path(__file__).resolve().parents[1] / "data" / "test_cases" / case_id
+        parser_specs = [
+            ("procmon_events.csv", "process", ProcmonParser),
+            ("registry_export.reg", "registry", RegistryParser),
+            ("sysmon_events.xml", "process", SysmonParser),
+            ("wireshark_packets.csv", "network", NetworkParser),
+        ]
+        events = []
+        evidence_files = []
+        for file_name, source_type, parser_type in parser_specs:
+            path = fixture_dir / file_name
+            parser = parser_type(case_id)
+            parsed = parser.parse_file(str(path), base_date="2026-11-10")
+            if parser.errors:
+                raise AssertionError(f"Failed to parse {file_name}: {parser.errors}")
+            events.extend(parsed)
+            evidence_files.append(EvidenceFile(
+                case_id=case_id,
+                source_type=source_type,
+                file_name=file_name,
+                file_path=str(path),
+                file_size=path.stat().st_size,
+                file_hash=hashlib.sha256(path.read_bytes()).hexdigest(),
+                record_count=len(parsed),
+                status="Parsed",
+            ))
+
+        create_case(Case(
+            case_id=case_id,
+            name="CASE-06 Diagnostic Fixture",
+            description="Deterministic parser and atomic-ingestion integration fixture",
+        ))
+        replace_case_ingestion(case_id, events, evidence_files)
+
+        ground_truth_path = (
+            Path(__file__).resolve().parents[1]
+            / "data" / "ground_truth" / f"{case_id}_ground_truth.json"
+        )
+        ground_truth = json.loads(ground_truth_path.read_text(encoding="utf-8"))
+        relationships_by_source = {}
+        for source_id, target_id, relationship_type in ground_truth["expected_relationships"]:
+            relationships_by_source.setdefault(source_id, []).append(
+                [source_id, target_id, relationship_type]
+            )
+        records = [
+            {
+                "event_id": event_id,
+                "is_incident_related": 1,
+                "activity_type": "Diagnostic fixture event",
+                "expected_relationships": relationships_by_source.get(event_id, []),
+            }
+            for event_id in ground_truth["incident_event_ids"]
+        ]
+        save_ground_truth(case_id, records)
 
     def test_01_case_06_diagnostic_counts(self):
-        """Verify CASE-06-DIAGNOSTIC has 18 events, 4 evidence files, 10 ground truth records."""
+        """Verify fixture parsing and ingestion produce 18 events, 4 files, and 10 GT records."""
         case_id = "CASE-06-DIAGNOSTIC"
         events = get_events(case_id)
         evidence_files = get_evidence_files(case_id)
@@ -42,7 +118,6 @@ class TestAtomicIngestionAndIntegrity(unittest.TestCase):
 
         self.assertEqual(len(events), 18, f"Expected 18 events in {case_id}, got {len(events)}")
         self.assertEqual(len(evidence_files), 4, f"Expected 4 evidence files in {case_id}, got {len(evidence_files)}")
-        self.assertIsNotNone(gt, f"Ground truth for {case_id} should not be None")
         self.assertEqual(len(gt), 10, f"Expected 10 GT records in {case_id}, got {len(gt)}")
 
     def test_02_atomic_rollback_on_batch_error(self):

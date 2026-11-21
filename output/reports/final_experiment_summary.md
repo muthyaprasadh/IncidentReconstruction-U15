@@ -1,124 +1,130 @@
-# U-15 Research Project Final Experiment Summary
+# Cross-Artifact Incident Reconstruction — Experimental Results
 
-## Cross-Artifact Incident Reconstruction from Process, Registry and Network Evidence
+**Report generated:** 2026-11-21 11:11 UTC
 
-### 1. Research Question & Primary Objective
+## 1. Experimental Overview
 
-> **Primary Research Question:** Can correlated endpoint and network traces reconstruct an incident more accurately than isolated analysis?
+This evaluation compares four investigation methods across 22 benchmark scenarios:
 
-In modern incident response, forensic artifacts are frequently examined in isolation:
-- Process telemetry reveals execution lineage but lacks external wire verification.
-- Network packet captures reveal communications but lack process attribution.
-- Registry evidence reveals configuration and persistence but lacks granular timestamps in static export scripts.
+1. Process-only investigation.
+2. Network-only investigation.
+3. Rule-based correlation.
+4. Proposed cross-artifact graph correlation.
 
-This research demonstrates that **correlating endpoint process, Windows registry, and network evidence into a unified, provenance-aware graph substantially improves incident reconstruction accuracy, increases true positive event recovery, and suppresses false positives compared to single-source and conventional rule-based investigations.**
+The benchmark contains 19 development scenarios and 3 designated held-out test scenarios.
 
----
+The measurements below are read from the existing `evaluation_metrics.csv`. This report-generation script does not rerun experiments or modify the underlying benchmark measurements.
 
-## 2. Experimental Methodology
+## 2. Evaluation Metrics
 
-### A. Evaluated Investigation Approaches
+The evaluation includes event-level precision, recall, F1-score, false-positive rate and event coverage, together with relationship-level F1-score and timeline accuracy.
 
-1. **Method 1: Process-Only Investigation**
-   - Uses process telemetry (Procmon, Sysmon Event ID 1) alone.
-   - Reconstructs process parent-child execution trees.
-   - Completely blind to registry persistence and network activity.
+**Aggregation note:** The reported values are means across scenario-level measurements. They are not pooled, micro-averaged measurements across all events.
 
-2. **Method 2: Network-Only Investigation**
-   - Uses network evidence (Sysmon Event ID 3, Wireshark packet captures) alone.
-   - Identifies external IP communications and bidirectional transport packets.
-   - Blind to parent process identity, process creation, and registry alterations.
+## 3. Overall Results
 
-3. **Method 3: Conventional Rule-Based Correlation (No Graph)**
-   - Correlates across all sources using traditional heuristic matching: PID, IP address, timestamps, and one-hop parent-child relationships.
-   - Does not employ graph connected-component traversal or multi-hop transitive attribution.
+| Investigation Method | Scenarios | Precision | Recall | F1 | False Positive Rate | Event Coverage | Relationship F1 | Timeline Accuracy |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Method 1: Process-Only | 22 | 0.6955 | 0.4378 | 0.5227 | 0.2000 | 0.6651 | 0.0000 | 0.7727 |
+| Method 2: Network-Only | 22 | 0.4565 | 0.2797 | 0.3296 | 0.2057 | 0.5069 | 0.4273 | 0.6364 |
+| Method 3: Rule-Based Correlation | 22 | 0.7045 | 0.5823 | 0.6253 | 0.2318 | 0.8096 | 0.4758 | 0.7727 |
+| Method 4: Proposed Cross-Artifact Graph | 22 | 0.7110 | 0.7727 | 0.7328 | 0.2545 | 1.0000 | 0.6885 | 0.7727 |
 
-4. **Method 4: Proposed Cross-Artifact Graph Method**
-   - Provenance-grounded multi-entity evidence graph (`NetworkX`).
-   - `ProcessGuid` canonical process identity combined with process epoch lifetime tracking.
-   - Direction-aware 5-tuple matching for forward client requests and reverse server replies.
-   - Static registry snapshot isolation (no artificial temporal proximity).
-   - Multi-hop causal graph traversal discovering complete incident execution paths.
+## 4. Development Results
 
----
+| Investigation Method | Scenarios | Precision | Recall | F1 | False Positive Rate | Event Coverage | Relationship F1 | Timeline Accuracy |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Method 1: Process-Only | 19 | 0.6789 | 0.4251 | 0.5091 | 0.1789 | 0.6882 | 0.0000 | 0.7368 |
+| Method 2: Network-Only | 19 | 0.4188 | 0.2531 | 0.3002 | 0.1972 | 0.5162 | 0.3851 | 0.5789 |
+| Method 3: Rule-Based Correlation | 19 | 0.6842 | 0.5628 | 0.6070 | 0.2158 | 0.8260 | 0.4579 | 0.7368 |
+| Method 4: Proposed Cross-Artifact Graph | 19 | 0.6880 | 0.7368 | 0.7049 | 0.2421 | 1.0000 | 0.6481 | 0.7368 |
 
-## 3. Dataset Description & Scenario Catalog
+## 5. Held-Out Test Results
 
-The evaluation was conducted across **22 controlled forensic scenarios**, comprising **5 benign baselines**, **14 attack and challenge scenarios**, and **3 strictly held-out test scenarios**:
+| Investigation Method | Scenarios | Precision | Recall | F1 | False Positive Rate | Event Coverage | Relationship F1 | Timeline Accuracy |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Method 1: Process-Only | 3 | 0.8000 | 0.5185 | 0.6085 | 0.3333 | 0.5185 | 0.0000 | 1.0000 |
+| Method 2: Network-Only | 3 | 0.6952 | 0.4481 | 0.5159 | 0.2593 | 0.4481 | 0.6945 | 1.0000 |
+| Method 3: Rule-Based Correlation | 3 | 0.8333 | 0.7056 | 0.7412 | 0.3333 | 0.7056 | 0.5889 | 1.0000 |
+| Method 4: Proposed Cross-Artifact Graph | 3 | 0.8571 | 1.0000 | 0.9091 | 0.3333 | 1.0000 | 0.9441 | 1.0000 |
 
-- **Benign Baselines (5 Scenarios):** `CASE-01-BENIGN-PROC` through `CASE-05-PROC-NET-BENIGN`. Contain 0 attack incident events; evaluate False Positive Rates.
-- **Development & Challenge Scenarios (14 Scenarios):**
-  - Multi-stage attack chains (`CASE-06`, `CASE-07`).
-  - Environmental noise stress tests (`CASE-08-NET-HEAVY-NOISE`, `CASE-09-REG-HEAVY-NOISE`).
-  - PID reuse challenge (`CASE-10-PID-REUSE`).
-  - Missing evidence challenges (`CASE-11-MISSING-NET`, `CASE-12-MISSING-REG`, `CASE-13-MISSING-SOCK-TELEMETRY`).
-  - Unattributed wire traffic (`CASE-14-UNATTRIBUTED-WIRE`).
-  - Bidirectional reverse reply traffic (`CASE-15-REVERSE-PACKETS`).
-  - Deep process trees (`CASE-16-DEEP-PROCESS-TREE`).
-  - Staged registry persistence (`CASE-17-STAGED-PERSISTENCE`).
-  - Temporally disconnected actions (`CASE-18-DISCONNECTED-TEMPORAL`).
-  - Concurrent processes with identical PIDs (`CASE-19-CONCURRENT-PROCESSES`).
-- **Strictly Held-Out Evaluation Scenarios (3 Scenarios):**
-  - `CASE-20-HELD-OUT-MIXED`
-  - `CASE-21-HELD-OUT-PID-REUSE`
-  - `CASE-22-HELD-OUT-MISSING-REG-NOISE`
-  - **These cases were held out and never used for tuning correlation heuristics.**
+## 6. Findings
 
----
+### 6.1 Event Detection
 
-## 4. Empirical Evaluation Results
+Across all 22 scenarios, the proposed cross-artifact graph method achieved an F1-score of **0.7328**, compared with **0.6253** for rule-based correlation.
 
-### Overall Performance Across All 22 Scenarios:
+On the development split, the proposed method achieved an F1-score of **0.7049**, compared with **0.6070** for rule-based correlation.
 
-| Investigation Method | Precision | Recall | F1-Score | False Positive Rate | Event Coverage | Rel Precision | Rel Recall | Rel F1 | Rel Accuracy | Timeline Acc |
-|---|---|---|---|---|---|---|---|---|---|---|
-| **Method 1: Process-Only** | 0.6955 | 0.4378 | 0.5227 | 0.2000 | 0.6651 | 0.0000 | 0.0000 | 0.0000 | 0.2273 | 0.7727 |
-| **Method 2: Network-Only** | 0.4565 | 0.2797 | 0.3296 | 0.2057 | 0.5069 | 0.6136 | 0.3316 | 0.4273 | 0.5134 | 0.6364 |
-| **Method 3: Rule-Based Correlation** | 0.7045 | 0.5823 | 0.6253 | 0.2318 | 0.8096 | 0.5780 | 0.4411 | 0.4758 | 0.5775 | 0.7727 |
-| **Method 4: Proposed Cross-Artifact Graph** | 0.7110 | 0.7727 | 0.7328 | 0.2545 | 1.0000 | 0.6307 | 0.7727 | 0.6885 | 0.9091 | 0.7727 |
+On the designated held-out test split, the proposed method achieved an F1-score of **0.9091**, compared with **0.7412** for rule-based correlation.
 
-### Held-Out Test Set Performance (Cases 20, 21, 22):
+### 6.2 Evidence Coverage
 
-| Investigation Method | Precision | Recall | F1-Score | False Positive Rate | Event Coverage | Rel Precision | Rel Recall | Rel F1 | Rel Accuracy | Timeline Acc |
-|---|---|---|---|---|---|---|---|---|---|---|
-| **Method 1: Process-Only** | 0.8000 | 0.5185 | 0.6085 | 0.3333 | 0.5185 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 1.0000 |
-| **Method 2: Network-Only** | 0.6952 | 0.4481 | 0.5159 | 0.2593 | 0.4481 | 1.0000 | 0.5333 | 0.6945 | 0.5333 | 1.0000 |
-| **Method 3: Rule-Based Correlation** | 0.8333 | 0.7056 | 0.7412 | 0.3333 | 0.7056 | 0.8056 | 0.4667 | 0.5889 | 0.4667 | 1.0000 |
-| **Method 4: Proposed Cross-Artifact Graph** | 0.8571 | 1.0000 | 0.9091 | 0.3333 | 1.0000 | 0.8968 | 1.0000 | 0.9441 | 1.0000 | 1.0000 |
+The proposed method achieved mean event coverage of **1.0000** across all scenarios.
 
----
+This supports the finding that cross-artifact correlation recovered a broader set of labeled incident events in this benchmark.
 
-## 5. Ablation Study Findings
+### 6.3 Relationship Reconstruction
 
-Feature ablation on multi-stage attack scenarios demonstrates the empirical necessity of each correlation component:
+The proposed method achieved an overall mean relationship F1-score of **0.6885**.
 
-1. **Ablation A (Remove ProcessGuid):** Causes attribution failures when PIDs are recycled, creating spurious relationships to unrelated processes sharing that PID.
-2. **Ablation B (Remove Timestamp Matching):** Expanding window to unbounded leads to severe false-positive relationship creation with background system activity.
-3. **Ablation C (Remove Registry Evidence):** Completely eliminates persistence detection (Run keys, subkey modifications), reducing relationship recall.
-4. **Ablation D (Remove 5-Tuple Matching):** Without transport port and protocol verification, packet observations cannot be distinguished from background network noise.
-5. **Ablation E (Remove Process Lifetime Tracking):** Results in false positive cross-epoch attributions whenever a PID is reused after an exit boundary.
+Relationship reconstruction should be interpreted alongside the event-level results and the ground-truth labeling scope.
 
----
+### 6.4 False-Positive Trade-off
 
-## 6. Sensitivity Analysis Findings
+The proposed method's overall mean false-positive rate was **0.2545**, compared with **0.2318** for rule-based correlation.
 
-- **Temporal Windows (±1s, ±5s, ±10s, ±30s):**
-  - ±1s window achieves highest precision (0.95+) but slightly degrades recall if socket telemetry lags network wire capture.
-  - ±5s window provides optimal balance of F1-score and low False Positive Rate.
-  - Windows >= 10s begin incorporating coincidental background packets in noisy network environments.
-- **Stress Conditions:**
-  - In missing network telemetry cases (`CASE-11`), the graph method gracefully reconstructs endpoint attack stages while flagging missing network visibility.
-  - In heavy background noise cases (`CASE-08`, `CASE-09`), the graph method maintains high precision by enforcing strict 5-tuple matching and epoch boundaries.
+On the development split, the proposed method's false-positive rate was **0.2421**, compared with **0.2158**.
 
----
+Therefore, these results do not demonstrate false-positive suppression by the proposed method. Its improved recall and coverage are accompanied by a false-positive-rate trade-off.
 
-## 7. Limitations & Threats to Validity
+## 7. Interpretation
 
-1. **Synthetic Scenario Benchmarks:** Traces are generated from controlled forensic lab scripts, not raw human production enterprise networks.
-2. **Clock Skew:** Scenarios assume synchronized or known timezone offsets. Extreme uncontrolled host-network clock drift would require dynamic time-warping alignment.
-3. **Encrypted Payloads:** The network correlator relies on transport-layer five-tuples; TLS application payload inspection was not evaluated.
-4. **Scope:** Designed for post-mortem forensic incident reconstruction and timeline auditing; not a replacement for live kernel-level EDR drivers.
+The benchmark results indicate that the proposed cross-artifact graph approach improves mean event recall, F1-score and event coverage compared with the rule-based baseline across the evaluated splits.
 
----
+The strongest observed difference is in event coverage, where the proposed method reaches complete mean coverage in the reported benchmark measurements.
 
-*Report automatically generated by U-15 Experimental Evaluation Suite.*
+However, the false-positive-rate results show that improved evidence recovery does not automatically imply fewer false positives. The proposed method should therefore be understood as a coverage-oriented reconstruction approach with a precision trade-off, rather than a universally superior detector.
+
+The held-out results are based on three scenarios. They provide an initial test-split evaluation, but the small number of scenarios limits the strength of generalization claims.
+
+## 8. Ablation and Sensitivity Interpretation
+
+The separately stored ablation and sensitivity results must be interpreted according to the measured outcomes:
+
+- Removing registry evidence caused measurable degradation in the inspected ablation scenarios.
+- Removing exact five-tuple network matching caused the largest measured degradation in those scenarios.
+- Removing ProcessGuid, timestamp-window constraints or process-lifetime handling did not produce measurable degradation in the inspected ablation results. These safeguards remain design choices, but their empirical contribution was not demonstrated by those tests.
+- The tested temporal windows did not show a measurable performance difference in the inspected sensitivity results. The experiments therefore do not establish that a five-second window is optimal.
+- PID-reuse and concurrent-process stress cases showed elevated false-positive rates. The method should not be described as maintaining low false-positive rates under every stress condition.
+
+These findings are limited to the scenarios and configurations represented in the existing experiment files.
+
+## 9. Real-World Validation Scope
+
+Synthetic benchmark results must be distinguished from the separately conducted controlled Windows experiment.
+
+The controlled Windows experiment used benign activity, including process execution, registry changes and a network connection. It is not a real data-theft incident and must not be presented as one.
+
+In that experiment, the proposed graph and conventional all-source method each matched all 30 annotated expected relationships within the evaluated scope. This is annotated relationship coverage, not a complete relationship precision or F1 measurement.
+
+The experiment does not establish that the proposed graph outperforms conventional all-source correlation in real-world investigations.
+
+## 10. Limitations
+
+1. The benchmark contains a limited number of scenarios, including only three held-out test scenarios.
+2. Synthetic evidence cannot fully represent the complexity of enterprise incidents.
+3. The controlled Windows validation represents one benign experiment, not a malicious incident.
+4. Encrypted network payloads limit application-level interpretation.
+5. Timestamp discrepancies and incomplete endpoint telemetry can restrict event chronology and attribution.
+6. Relationship metrics depend on the completeness and scope of the annotated ground truth.
+7. Elevated false-positive rates in certain stress scenarios require further investigation.
+8. The results do not establish forensic admissibility or production readiness.
+
+## 11. Conclusion
+
+The evaluated results support the use of cross-artifact graph correlation to improve incident-event recovery and relationship reconstruction coverage across the tested benchmark scenarios.
+
+The proposed method achieved higher mean F1-score and event coverage than the rule-based baseline. However, the false-positive-rate trade-off, limited held-out sample size and restricted real-world validation scope must remain explicit.
+
+Further evaluation using independently collected enterprise evidence, larger held-out datasets and more exhaustive ground-truth annotations is required before making broader generalization claims.

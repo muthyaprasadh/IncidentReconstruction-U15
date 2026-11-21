@@ -1,10 +1,12 @@
 """
 Interactive Incident Timeline Component for Streamlit.
 Renders reconstructed forensic timeline with category badges, cross-artifact links,
-provenance inspection, and full search/filter capabilities.
+and on-demand provenance inspection for entries already filtered by the page.
 """
 import streamlit as st
 from typing import List, Dict, Any
+
+DETAILS_STATE_KEY = "timeline_expanded_event_id"
 
 SOURCE_BADGES = {
     "process": ("#EF4444", "PROCESS"),
@@ -26,26 +28,15 @@ def render_timeline_view(timeline_entries: List[Dict[str, Any]]):
         st.info("No events available in the reconstructed timeline.")
         return
 
-    # Filter controls
-    col1, col2, col3 = st.columns([2, 1, 1])
+    col1, _, _ = st.columns([2, 1, 1])
     with col1:
-        search_query = st.text_input("🔍 Search timeline events", placeholder="Filter by process, IP, key, or path...").strip().lower()
-    with col2:
-        source_filter = st.multiselect("Evidence Sources", options=["process", "registry", "network"], default=["process", "registry", "network"])
-    with col3:
         only_linked = st.checkbox("Only show correlated events", value=False)
 
-    filtered = []
-    for entry in timeline_entries:
-        if entry["source"] not in source_filter:
-            continue
-        if only_linked and entry.get("link_count", 0) == 0:
-            continue
-        if search_query:
-            haystack = f"{entry.get('process_name')} {entry.get('registry_key')} {entry.get('network_destination')} {entry.get('file_path')} {entry.get('description')}".lower()
-            if search_query not in haystack:
-                continue
-        filtered.append(entry)
+    filtered = [
+        entry
+        for entry in timeline_entries
+        if not only_linked or entry.get("link_count", 0) > 0
+    ]
 
     st.caption(f"Showing **{len(filtered)}** of **{len(timeline_entries)}** reconstructed events")
 
@@ -76,10 +67,16 @@ def render_timeline_view(timeline_entries: List[Dict[str, Any]]):
                 unsafe_allow_html=True
             )
 
-            # Expandable related links and raw metadata
             has_links = entry.get("link_count", 0) > 0
             label = f"🔗 Cross-Artifact Links ({entry.get('link_count')}) & Provenance Details" if has_links else "📄 Provenance Details"
-            with st.expander(label, expanded=False):
+            event_details_id = str(entry.get("event_id", idx))
+            if st.button(label, key=f"timeline_details_{event_details_id}"):
+                if st.session_state.get(DETAILS_STATE_KEY) == event_details_id:
+                    st.session_state.pop(DETAILS_STATE_KEY, None)
+                else:
+                    st.session_state[DETAILS_STATE_KEY] = event_details_id
+
+            if st.session_state.get(DETAILS_STATE_KEY) == event_details_id:
                 if has_links:
                     st.markdown("**Correlated Relationships:**")
                     for link in entry.get("related_links", []):
