@@ -74,6 +74,38 @@ class ForensicEvaluator:
         }
 
     @staticmethod
+    def calculate_labeled_relationship_coverage(
+        predicted_relationships: List[Tuple[str, str, str]],
+        ground_truth_relationships: List[Tuple[str, str, str]],
+        labeled_event_ids: Set[str],
+    ) -> Dict[str, Any]:
+        """Measure exact expected-link coverage without treating unlabeled links as negatives."""
+        expected = set(ground_truth_relationships)
+        scoped_predictions = {
+            relationship
+            for relationship in predicted_relationships
+            if relationship[0] in labeled_event_ids
+            and relationship[1] in labeled_event_ids
+        }
+        matches = scoped_predictions & expected
+
+        return {
+            "expected_relationship_count": len(expected),
+            "scoped_unique_prediction_count": len(scoped_predictions),
+            "exact_expected_relationship_matches": len(matches),
+            "expected_link_coverage": round(
+                len(matches) / len(expected) if expected else 1.0,
+                4,
+            ),
+            "unreviewed_scoped_relationships": [
+                list(item) for item in sorted(scoped_predictions - expected)
+            ],
+            "missed_expected_relationships": [
+                list(item) for item in sorted(expected - scoped_predictions)
+            ],
+        }
+
+    @staticmethod
     def calculate_timeline_ordering_accuracy(
         predicted_ordered_ids: List[str],
         ground_truth_ordered_ids: List[str]

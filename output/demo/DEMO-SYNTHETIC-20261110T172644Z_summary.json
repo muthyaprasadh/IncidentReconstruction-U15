@@ -1,0 +1,140 @@
+{
+  "case_id": "DEMO-SYNTHETIC-20261110T172644Z",
+  "dataset_type": "SYNTHETIC_DEMONSTRATION_ONLY",
+  "warning": "Generated evidence is synthetic. Do not report these metrics as real Windows experiment results.",
+  "counts": {
+    "procmon_events": 9,
+    "registry_snapshot_entities": 3,
+    "wireshark_packets": 3,
+    "sysmon_events": 3,
+    "total_events": 18,
+    "relationships": 12,
+    "unattributed_packets": 0
+  },
+  "graph_statistics": {
+    "node_count": 27,
+    "edge_count": 38,
+    "density": 0.0541,
+    "connected_clusters": 3,
+    "cluster_sizes": [
+      16,
+      7,
+      4
+    ],
+    "central_nodes": [
+      {
+        "node_id": "EVT-NET-sysmon_events-R00002-d142d5",
+        "label": "[NETWORK]\nNET_CONNECT\n10:00:05",
+        "type": "event",
+        "centrality_score": 0.2308,
+        "degree": 6
+      },
+      {
+        "node_id": "proc:svchost.exe:844",
+        "label": "svchost.exe\n(PID:844)",
+        "type": "process",
+        "centrality_score": 0.1923,
+        "degree": 5
+      },
+      {
+        "node_id": "reg:HKLM\\System\\CurrentControlSet\\Services\\Schedule",
+        "label": "Reg:\nntControlSet\\Services\\Schedule",
+        "type": "registry",
+        "centrality_score": 0.1923,
+        "degree": 5
+      },
+      {
+        "node_id": "proc:testapp.exe:4128",
+        "label": "testapp.exe\n(PID:4128)",
+        "type": "process",
+        "centrality_score": 0.1923,
+        "degree": 5
+      },
+      {
+        "node_id": "EVT-REG-procmon_events-R00001-0a2c69",
+        "label": "[REGISTRY]\nREG_OPERATION\n09:59:52",
+        "type": "event",
+        "centrality_score": 0.1538,
+        "degree": 4
+      }
+    ]
+  },
+  "evaluation": [
+    {
+      "method": "Baseline 1: Process Only",
+      "tp": 5,
+      "fp": 0,
+      "fn": 5,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1_score": 0.6667,
+      "false_positive_rate": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 2,
+      "rel_fn": 6,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "relationship_attribution_accuracy": 0.0,
+      "timeline_accuracy": 1.0
+    },
+    {
+      "method": "Baseline 2: Process + Registry",
+      "tp": 6,
+      "fp": 0,
+      "fn": 4,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1_score": 0.75,
+      "false_positive_rate": 0.0,
+      "rel_tp": 1,
+      "rel_fp": 2,
+      "rel_fn": 5,
+      "rel_precision": 0.3333,
+      "rel_recall": 0.1667,
+      "rel_f1": 0.2222,
+      "relationship_attribution_accuracy": 0.1667,
+      "timeline_accuracy": 1.0
+    },
+    {
+      "method": "Baseline 3: All Sources Rule-Based (No Graph)",
+      "tp": 10,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "rel_tp": 5,
+      "rel_fp": 2,
+      "rel_fn": 1,
+      "rel_precision": 0.7143,
+      "rel_recall": 0.8333,
+      "rel_f1": 0.7692,
+      "relationship_attribution_accuracy": 0.8333,
+      "timeline_accuracy": 1.0
+    },
+    {
+      "method": "Proposed: Provenance Graph",
+      "tp": 10,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "rel_tp": 5,
+      "rel_fp": 2,
+      "rel_fn": 1,
+      "rel_precision": 0.7143,
+      "rel_recall": 0.8333,
+      "rel_f1": 0.7692,
+      "relationship_attribution_accuracy": 0.8333,
+      "timeline_accuracy": 1.0
+    }
+  ]
+}

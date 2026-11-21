@@ -1,0 +1,27 @@
+case_id,scenario_id,sensitivity_type,condition,method,window_seconds,precision,recall,f1_score,fpr,rel_precision,rel_recall,rel_f1,rel_accuracy
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±1s,Method 3: Rule-Based (No Graph),1.0,1.0,0.7,0.8235,0.0,0.75,0.5,0.6,0.5
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±1s,Method 4: Proposed Graph,1.0,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±5s,Method 3: Rule-Based (No Graph),5.0,1.0,0.7,0.8235,0.0,0.75,0.5,0.6,0.5
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±5s,Method 4: Proposed Graph,5.0,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±10s,Method 3: Rule-Based (No Graph),10.0,1.0,0.7,0.8235,0.0,0.75,0.5,0.6,0.5
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±10s,Method 4: Proposed Graph,10.0,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±30s,Method 3: Rule-Based (No Graph),30.0,1.0,0.7,0.8235,0.0,0.75,0.5,0.6,0.5
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Temporal Window Variation,Temporal Window ±30s,Method 4: Proposed Graph,30.0,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0
+CASE-08-08_NET_HEAVY_NOISE,CASE-08-NET-HEAVY-NOISE,Environmental Stress Condition,Network Noise,Method 3: Rule-Based Correlation,5.0,1.0,0.7,0.8235,0.0,0.75,0.5,0.6,0.5
+CASE-08-08_NET_HEAVY_NOISE,CASE-08-NET-HEAVY-NOISE,Environmental Stress Condition,Network Noise,Method 4: Proposed Cross-Artifact Graph,5.0,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0
+CASE-09-09_REG_HEAVY_NOISE,CASE-09-REG-HEAVY-NOISE,Environmental Stress Condition,Registry Noise,Method 3: Rule-Based Correlation,5.0,1.0,0.7,0.8235,0.0,0.75,0.5,0.6,0.5
+CASE-09-09_REG_HEAVY_NOISE,CASE-09-REG-HEAVY-NOISE,Environmental Stress Condition,Registry Noise,Method 4: Proposed Cross-Artifact Graph,5.0,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0
+CASE-10-10_PID_REUSE,CASE-10-PID-REUSE,Environmental Stress Condition,PID Reuse,Method 3: Rule-Based Correlation,5.0,0.5,0.75,0.6,1.0,1.0,0.5,0.6667,0.5
+CASE-10-10_PID_REUSE,CASE-10-PID-REUSE,Environmental Stress Condition,PID Reuse,Method 4: Proposed Cross-Artifact Graph,5.0,0.5714,1.0,0.7273,1.0,1.0,1.0,1.0,1.0
+CASE-11-11_MISSING_NET,CASE-11-MISSING-NET,Environmental Stress Condition,Missing Network Evidence,Method 3: Rule-Based Correlation,5.0,1.0,1.0,1.0,0.0,0.6667,1.0,0.8,1.0
+CASE-11-11_MISSING_NET,CASE-11-MISSING-NET,Environmental Stress Condition,Missing Network Evidence,Method 4: Proposed Cross-Artifact Graph,5.0,1.0,1.0,1.0,0.0,0.6667,1.0,0.8,1.0
+CASE-12-12_MISSING_REG,CASE-12-MISSING-REG,Environmental Stress Condition,Missing Registry Evidence,Method 3: Rule-Based Correlation,5.0,1.0,0.6667,0.8,0.0,0.6667,0.4,0.5,0.4
+CASE-12-12_MISSING_REG,CASE-12-MISSING-REG,Environmental Stress Condition,Missing Registry Evidence,Method 4: Proposed Cross-Artifact Graph,5.0,1.0,1.0,1.0,0.0,0.8333,1.0,0.9091,1.0
+CASE-13-13_MISSING_SOCK_TELEMETRY,CASE-13-MISSING-SOCK-TELEMETRY,Environmental Stress Condition,Missing Socket Telemetry,Method 3: Rule-Based Correlation,5.0,1.0,1.0,1.0,0.0,0.6667,1.0,0.8,1.0
+CASE-13-13_MISSING_SOCK_TELEMETRY,CASE-13-MISSING-SOCK-TELEMETRY,Environmental Stress Condition,Missing Socket Telemetry,Method 4: Proposed Cross-Artifact Graph,5.0,1.0,1.0,1.0,0.0,0.6667,1.0,0.8,1.0
+CASE-19-19_CONCURRENT_PROCESSES,CASE-19-CONCURRENT-PROCESSES,Environmental Stress Condition,Concurrent Processes,Method 3: Rule-Based Correlation,5.0,0.5,0.75,0.6,0.75,0.5,0.5,0.5,0.5
+CASE-19-19_CONCURRENT_PROCESSES,CASE-19-CONCURRENT-PROCESSES,Environmental Stress Condition,Concurrent Processes,Method 4: Proposed Cross-Artifact Graph,5.0,0.5,1.0,0.6667,1.0,0.5,1.0,0.6667,1.0
+CASE-21-21_HELD_OUT_PID_REUSE,CASE-21-HELD-OUT-PID-REUSE,Environmental Stress Condition,Held-Out PID Reuse,Method 3: Rule-Based Correlation,5.0,0.5,0.75,0.6,1.0,1.0,0.5,0.6667,0.5
+CASE-21-21_HELD_OUT_PID_REUSE,CASE-21-HELD-OUT-PID-REUSE,Environmental Stress Condition,Held-Out PID Reuse,Method 4: Proposed Cross-Artifact Graph,5.0,0.5714,1.0,0.7273,1.0,1.0,1.0,1.0,1.0
+CASE-22-22_HELD_OUT_MISSING_REG_NOISE,CASE-22-HELD-OUT-MISSING-REG-NOISE,Environmental Stress Condition,Held-Out Missing Reg + Noise,Method 3: Rule-Based Correlation,5.0,1.0,0.6667,0.8,0.0,0.6667,0.4,0.5,0.4
+CASE-22-22_HELD_OUT_MISSING_REG_NOISE,CASE-22-HELD-OUT-MISSING-REG-NOISE,Environmental Stress Condition,Held-Out Missing Reg + Noise,Method 4: Proposed Cross-Artifact Graph,5.0,1.0,1.0,1.0,0.0,0.8333,1.0,0.9091,1.0

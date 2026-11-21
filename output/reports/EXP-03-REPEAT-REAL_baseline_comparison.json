@@ -1,0 +1,432 @@
+{
+  "case_id": "EXP-03-REPEAT-REAL",
+  "dataset_type": "real_world",
+  "evaluation_type": "exact event-relationship comparison on annotated event subgraph",
+  "evaluated_at": "2026-11-21T09:39:41.175412+00:00",
+  "temporal_window_seconds": 5.0,
+  "normalized_event_count": 386379,
+  "incident_event_count": 31,
+  "expected_relationship_count": 30,
+  "scored_scope": "Exact event-ID relationship matches are counted only when both endpoints are labeled. Unmatched predictions are reported as unreviewed, not false positives, because the expected edge list may not enumerate every valid evidence-source pairing.",
+  "not_computed": [
+    "Event detection precision/recall/F1 and false-positive rate: the full case is not exhaustively event-labeled.",
+    "Timeline accuracy: the ground-truth chronology is partial.",
+    "Held-out performance: real-case correlations were inspected during development.",
+    "Relationship precision/F1: negative edge labels and source-equivalence mappings are not exhaustive."
+  ],
+  "methods": [
+    {
+      "method": "Baseline 1: Process-only",
+      "runtime_seconds": 0.252,
+      "total_predicted_relationships": 18,
+      "expected_relationship_count": 30,
+      "scoped_unique_prediction_count": 2,
+      "exact_expected_relationship_matches": 0,
+      "expected_link_coverage": 0.0,
+      "unreviewed_scoped_relationships": [
+        [
+          "EVT-PROC-logfile-R242790-e14edf",
+          "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+          "SPAWNED"
+        ],
+        [
+          "EVT-PROC-logfile-R242790-e14edf",
+          "EVT-PROC-logfile-R265182-4fb548",
+          "SPAWNED"
+        ]
+      ],
+      "missed_expected_relationships": [
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13887-98c837",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "CONNECTED_TO"
+        ],
+        [
+          "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+          "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+          "SPAWNED"
+        ],
+        [
+          "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+          "EVT-PROC-logfile-R265182-4fb548",
+          "SPAWNED"
+        ],
+        [
+          "EVT-PROC-logfile-R242789-b931f4",
+          "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+          "SPAWNED"
+        ],
+        [
+          "EVT-PROC-logfile-R242789-b931f4",
+          "EVT-PROC-logfile-R242790-e14edf",
+          "SPAWNED"
+        ],
+        [
+          "EVT-PROC-logfile-R242789-b931f4",
+          "EVT-REG-logfile-R240796-a6c696",
+          "MODIFIED"
+        ],
+        [
+          "EVT-PROC-logfile-R242789-b931f4",
+          "EVT-REG-logfile-R240803-b54fd3",
+          "MODIFIED"
+        ],
+        [
+          "EVT-PROC-logfile-R242789-b931f4",
+          "EVT-REG-logfile-R241242-28f783",
+          "MODIFIED"
+        ],
+        [
+          "EVT-PROC-logfile-R242789-b931f4",
+          "EVT-REG-logfile-R241478-edaa78",
+          "MODIFIED"
+        ],
+        [
+          "EVT-PROC-logfile-R265182-4fb548",
+          "EVT-PROC-logfile-R266234-0a83aa",
+          "CONNECTED_TO"
+        ]
+      ]
+    },
+    {
+      "method": "Baseline 2: Process + Registry",
+      "runtime_seconds": 50.371,
+      "total_predicted_relationships": 187354,
+      "expected_relationship_count": 30,
+      "scoped_unique_prediction_count": 9,
+      "exact_expected_relationship_matches": 9,
+      "expected_link_coverage": 0.3,
+      "unreviewed_scoped_relationships": [],
+      "missed_expected_relationships": [
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13887-98c837",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "CONNECTED_TO"
+        ]
+      ]
+    },
+    {
+      "method": "Baseline 3: Conventional all-source",
+      "runtime_seconds": 47.818,
+      "total_predicted_relationships": 178036,
+      "expected_relationship_count": 30,
+      "scoped_unique_prediction_count": 10,
+      "exact_expected_relationship_matches": 10,
+      "expected_link_coverage": 0.3333,
+      "unreviewed_scoped_relationships": [],
+      "missed_expected_relationships": [
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
+          "OBSERVED_IN"
+        ],
+        [
+          "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "EVT-NET-exp-03-repeat-wireshark-P13887-98c837",
+          "OBSERVED_IN"
+        ]
+      ]
+    },
+    {
+      "method": "Proposed: Provenance graph",
+      "runtime_seconds": 45.351,
+      "total_predicted_relationships": 178066,
+      "expected_relationship_count": 30,
+      "scoped_unique_prediction_count": 30,
+      "exact_expected_relationship_matches": 30,
+      "expected_link_coverage": 1.0,
+      "unreviewed_scoped_relationships": [],
+      "missed_expected_relationships": []
+    }
+  ]
+}

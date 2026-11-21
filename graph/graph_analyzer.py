@@ -4,6 +4,7 @@ Calculates forensic graph metrics: degree centrality, incident clusters,
 attack paths from initial execution to network egress or persistence, and anomalous subgraphs.
 """
 import networkx as nx
+from itertools import islice
 from typing import List, Dict, Any, Optional, Set
 
 class EvidenceGraphAnalyzer:
@@ -48,15 +49,27 @@ class EvidenceGraphAnalyzer:
             "central_nodes": top_central
         }
 
-    def find_causal_paths(self, source_node: str, target_node: str) -> List[List[str]]:
+    def find_causal_paths(
+        self,
+        source_node: str,
+        target_node: str,
+        max_paths: int = 100
+    ) -> List[List[str]]:
         """Finds directed paths linking source to target in the evidence graph."""
+        if max_paths < 1:
+            raise ValueError("max_paths must be positive")
         simple_digraph = nx.DiGraph(self.graph)
         if not simple_digraph.has_node(source_node) or not simple_digraph.has_node(target_node):
             return []
         try:
-            paths = list(nx.all_simple_paths(simple_digraph, source=source_node, target=target_node, cutoff=7))
-            return paths
-        except Exception:
+            paths = nx.all_simple_paths(
+                simple_digraph,
+                source=source_node,
+                target=target_node,
+                cutoff=7,
+            )
+            return list(islice(paths, max_paths))
+        except nx.NetworkXNoPath:
             return []
 
     def filter_subgraph(

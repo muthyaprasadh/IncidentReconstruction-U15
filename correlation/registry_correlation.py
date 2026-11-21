@@ -66,6 +66,21 @@ class RegistryCorrelator:
                     continue
 
                 p_cand = events_by_id.get(epoch.start_event_id)
+                if not epoch.is_explicit_start:
+                    reg_dt = Normalizer.try_parse_complete_datetime(reg.timestamp)
+                    lifecycle_candidates = []
+                    if reg_dt is not None:
+                        for pe in by_pid.get(reg.pid, []):
+                            if pe.event_type.upper() not in ("PROCESS_CREATE", "PROCESS_START"):
+                                continue
+                            pe_dt = Normalizer.try_parse_complete_datetime(pe.timestamp)
+                            if pe_dt is None:
+                                continue
+                            delta = abs((reg_dt - pe_dt).total_seconds())
+                            if delta <= window_seconds:
+                                lifecycle_candidates.append((delta, pe))
+                    if lifecycle_candidates:
+                        p_cand = min(lifecycle_candidates, key=lambda item: item[0])[1]
 
                 if p_cand is None:
                     candidates = []
@@ -123,6 +138,22 @@ class RegistryCorrelator:
                     else "ACCESSED"
                 )
 
+                epoch_reference = (
+                    f"ProcessEpochStart:{epoch.start_event_id}"
+                    if epoch.is_explicit_start
+                    else f"ProcessEpochObservation:{epoch.start_event_id}"
+                )
+                attribution = (
+                    f"using its validated process epoch established by process-start evidence. "
+                    f"Epoch start event: {epoch.start_event_id}."
+                    if epoch.is_explicit_start
+                    else (
+                        f"using the Registry record's PID and a process activity observation; "
+                        f"no explicit process-start record was captured. Supporting process "
+                        f"event: {p_cand.event_id}."
+                    )
+                )
+
                 relationships.append(
                     EventRelationship(
                         source_event_id=p_cand.event_id,
@@ -133,15 +164,14 @@ class RegistryCorrelator:
                         supporting_identifiers=[
                             f"PID:{reg.pid}",
                             f"Key:{reg.registry_key}",
-                            f"ProcessEpochStart:{epoch.start_event_id}",
+                            epoch_reference,
                             f"Proc:{reg.process_name or p_cand.process_name}"
                         ],
                         evidence_sources=["process", "registry"],
                         explanation=(
                             f"Registry operation attributed to process "
                             f"'{reg.process_name or p_cand.process_name}' "
-                            f"(PID {reg.pid}) using its validated process epoch. "
-                            f"Epoch start event: {epoch.start_event_id}."
+                            f"(PID {reg.pid}) {attribution}"
                         ),
                         relationship_category="Directly observed",
                         case_id=case_id

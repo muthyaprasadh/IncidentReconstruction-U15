@@ -4,6 +4,7 @@ Unit and Integration Tests for U-15 Incident Reconstruction Platform.
 import unittest
 from pathlib import Path
 import json
+import networkx as nx
 
 from config.settings import TEST_CASES_DIR, GROUND_TRUTH_DIR
 import database.db as db
@@ -17,6 +18,7 @@ from parsers.sysmon_parser import SysmonParser
 from correlation.correlation_engine import CorrelationEngine
 from graph.graph_builder import EvidenceGraphBuilder
 from graph.graph_analyzer import EvidenceGraphAnalyzer
+from app.components.graph_visualizer import render_plotly_network, render_pyvis_network
 from reconstruction.timeline_generator import TimelineGenerator
 from reconstruction.incident_narrative import IncidentNarrativeGenerator
 from evaluation.baselines import BaselineRunner
@@ -127,6 +129,92 @@ class TestIncidentReconstructionBackend(unittest.TestCase):
         stats = analyzer.get_summary_statistics()
         self.assertGreaterEqual(stats["node_count"], 5)
         self.assertGreater(stats["connected_clusters"], 0)
+        directly_observed = analyzer.filter_subgraph(
+            allowed_categories=["Directly observed"],
+            allowed_node_types=["process", "registry", "network", "file", "event"],
+        )
+        self.assertGreater(directly_observed.number_of_nodes(), 0)
+
+    def test_graph_path_limit_and_explanation_rendering(self):
+        stored_events = db.get_events(self.case_id)
+        stored_relationships = db.get_relationships(self.case_id)
+        self.assertTrue(stored_relationships)
+        scoped_relationships = db.get_relationships(
+            self.case_id,
+            event_ids=[
+                stored_relationships[0]["source_event_id"],
+                stored_relationships[0]["target_event_id"],
+            ],
+        )
+        endpoint_ids = {
+            stored_relationships[0]["source_event_id"],
+            stored_relationships[0]["target_event_id"],
+        }
+        self.assertTrue(scoped_relationships)
+        self.assertTrue(
+            all(
+                rel["source_event_id"] in endpoint_ids
+                and rel["target_event_id"] in endpoint_ids
+                for rel in scoped_relationships
+            )
+        )
+        self.assertEqual(db.get_relationships(self.case_id, event_ids=[]), [])
+        self.assertEqual(db.get_event_count(self.case_id), len(stored_events))
+        correlated_events = db.get_most_correlated_events(self.case_id, limit=10)
+        self.assertTrue(correlated_events)
+        with self.assertRaises(ValueError):
+            db.get_most_correlated_events(self.case_id, limit=0)
+        latest_events = db.get_events(self.case_id, limit=10, newest_first=True)
+        self.assertEqual(
+            [event["timestamp"] for event in latest_events],
+            sorted((event["timestamp"] for event in latest_events), reverse=True),
+        )
+
+        graph = nx.MultiDiGraph()
+        graph.add_node("process:1", label="worker.exe")
+        graph.add_node("network:1", label="192.0.2.1:443")
+        graph.add_edge(
+            "process:1",
+            "network:1",
+            relationship_type="CONNECTED_TO",
+            relationship_category="Strongly supported",
+            confidence_score=0.9,
+            correlation_method="five_tuple",
+            explanation="Matched Sysmon and packet evidence.",
+            supporting_identifiers=["WireFrame:7"],
+            title="Matched Sysmon and packet evidence. WireFrame:7",
+        )
+        graph.add_node("registry:1", label="HKCU\\Software\\Test")
+        graph.add_node("orphan:1", label="unconnected.exe")
+        graph.add_edge(
+            "process:1",
+            "registry:1",
+            relationship_type="MODIFIED",
+            relationship_category="Inferred",
+            confidence_score=0.6,
+        )
+        graph.add_edge(
+            "network:1",
+            "registry:1",
+            relationship_type="OBSERVED_IN",
+            relationship_category="Inferred",
+            confidence_score=0.6,
+        )
+
+        analyzer = EvidenceGraphAnalyzer(graph)
+        paths = analyzer.find_causal_paths("process:1", "registry:1", max_paths=1)
+        self.assertEqual(len(paths), 1)
+        self.assertEqual(paths[0][0], "process:1")
+        self.assertEqual(paths[0][-1], "registry:1")
+        self.assertEqual(analyzer.find_causal_paths("orphan:1", "registry:1"), [])
+        with self.assertRaises(ValueError):
+            analyzer.find_causal_paths("process:1", "registry:1", max_paths=0)
+
+        figure = render_plotly_network(graph)
+        edge_hover_text = figure.data[0].text
+        self.assertTrue(any("Matched Sysmon and packet evidence." in text for text in edge_hover_text))
+        self.assertTrue(any("WireFrame:7" in text for text in edge_hover_text))
+        self.assertIn("Matched Sysmon and packet evidence.", render_pyvis_network(graph))
 
     def test_06_timeline_and_narrative(self):
         events = db.get_events(self.case_id)

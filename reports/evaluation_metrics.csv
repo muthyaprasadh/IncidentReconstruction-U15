@@ -1,0 +1,13 @@
+dataset_split,investigation_method,scenarios_evaluated,mean_precision,mean_recall,mean_f1_score,mean_false_positive_rate,mean_event_coverage,mean_relationship_precision,mean_relationship_recall,mean_relationship_f1,mean_relationship_accuracy,mean_timeline_accuracy
+All Scenarios,Method 1: Process-Only,22,0.6955,0.4378,0.5227,0.2,0.6651,0.0,0.0,0.0,0.2273,0.7727
+All Scenarios,Method 2: Network-Only,22,0.4565,0.2797,0.3296,0.2057,0.5069,0.6136,0.3316,0.4273,0.5134,0.6364
+All Scenarios,Method 3: Rule-Based Correlation,22,0.7045,0.5823,0.6253,0.2318,0.8096,0.578,0.4411,0.4758,0.5775,0.7727
+All Scenarios,Method 4: Proposed Cross-Artifact Graph,22,0.711,0.7727,0.7328,0.2545,1.0,0.6307,0.7727,0.6885,0.9091,0.7727
+Development,Method 1: Process-Only,19,0.6789,0.4251,0.5091,0.1789,0.6882,0.0,0.0,0.0,0.2632,0.7368
+Development,Method 2: Network-Only,19,0.4188,0.2531,0.3002,0.1972,0.5162,0.5526,0.2998,0.3851,0.5103,0.5789
+Development,Method 3: Rule-Based Correlation,19,0.6842,0.5628,0.607,0.2158,0.826,0.5421,0.4371,0.4579,0.595,0.7368
+Development,Method 4: Proposed Cross-Artifact Graph,19,0.688,0.7368,0.7049,0.2421,1.0,0.5886,0.7368,0.6481,0.8947,0.7368
+Held-Out Test,Method 1: Process-Only,3,0.8,0.5185,0.6085,0.3333,0.5185,0.0,0.0,0.0,0.0,1.0
+Held-Out Test,Method 2: Network-Only,3,0.6952,0.4481,0.5159,0.2593,0.4481,1.0,0.5333,0.6945,0.5333,1.0
+Held-Out Test,Method 3: Rule-Based Correlation,3,0.8333,0.7056,0.7412,0.3333,0.7056,0.8056,0.4667,0.5889,0.4667,1.0
+Held-Out Test,Method 4: Proposed Cross-Artifact Graph,3,0.8571,1.0,0.9091,0.3333,1.0,0.8968,1.0,0.9441,1.0,1.0

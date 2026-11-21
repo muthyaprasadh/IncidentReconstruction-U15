@@ -200,16 +200,22 @@ class ProcmonParser:
         src_port: Optional[int] = None
         dst_port: Optional[int] = None
         protocol = ""
+        created_pid: Optional[int] = None
 
-        # Extract PPID from details if Process Create / Process Start
+        # Procmon Process Create identifies the child PID, while Process Start
+        # identifies the child process and reports its parent PID.
         if "PROCESS" in op_upper:
-            if "CREATE" in op_upper or "START" in op_upper:
+            if op_upper == "PROCESS CREATE":
+                event_type = "PROCESS_CREATE"
+                created_pid_match = re.search(r"\bPID:\s*(\d+)", raw_detail, re.IGNORECASE)
+                if created_pid_match:
+                    created_pid = int(created_pid_match.group(1))
+            elif op_upper == "PROCESS START":
                 event_type = "PROCESS_START"
-                # Look for Parent PID: 1234 in Detail
                 ppid_match = re.search(r"Parent\s*PID:\s*(\d+)", raw_detail, re.IGNORECASE)
                 if ppid_match:
                     ppid = int(ppid_match.group(1))
-            elif "EXIT" in op_upper:
+            elif op_upper == "PROCESS EXIT":
                 event_type = "PROCESS_EXIT"
             file_path = raw_path
 
@@ -259,6 +265,7 @@ class ProcmonParser:
             "raw_result": raw_result,
             "raw_detail": raw_detail,
             "raw_time": orig_ts,
+            "created_pid": created_pid,
             "transport_protocol": protocol if src_ip else "",
             "app_protocol": Normalizer.normalize_app_protocol(f"{raw_path} {raw_detail}"),
             "network_telemetry": "",

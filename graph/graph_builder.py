@@ -47,6 +47,27 @@ class EvidenceGraphBuilder:
             ev_id = e["event_id"]
             source = e["source"]
             ts = e["timestamp"]
+            evidence_reference = ":".join(
+                str(value)
+                for value in (e.get("evidence_file"), e.get("evidence_reference"))
+                if value
+            )
+            provenance = [evidence_reference] if evidence_reference else []
+            attribution = {
+                "relationship_category": "Directly observed",
+                "correlation_method": "normalized_event_attributes",
+                "supporting_identifiers": provenance,
+                "explanation": (
+                    f"Entity attributes are present in {evidence_reference}."
+                    if evidence_reference else
+                    f"Entity attributes are present in normalized event {ev_id}."
+                ),
+                "title": (
+                    f"[Directly observed] Entity attributes from "
+                    f"{evidence_reference or ev_id}"
+                ),
+                **EDGE_STYLES["Directly observed"],
+            }
 
             # Add specific Entity nodes representing forensics artifacts
             # Process Node
@@ -67,7 +88,13 @@ class EvidenceGraphBuilder:
                         **NODE_STYLES["process"]
                     )
                 # Link event to entity
-                self.graph.add_edge(ev_id, proc_node_id, relationship_type="ATTRIBUTED_TO", confidence_score=1.0)
+                self.graph.add_edge(
+                    ev_id,
+                    proc_node_id,
+                    relationship_type="ATTRIBUTED_TO",
+                    confidence_score=1.0,
+                    **attribution
+                )
 
             # Registry Node
             if e.get("registry_key"):
@@ -84,7 +111,13 @@ class EvidenceGraphBuilder:
                         title=f"Registry Key:\n{reg_key}",
                         **NODE_STYLES["registry"]
                     )
-                self.graph.add_edge(ev_id, reg_node_id, relationship_type="TARGETS_KEY", confidence_score=1.0)
+                self.graph.add_edge(
+                    ev_id,
+                    reg_node_id,
+                    relationship_type="TARGETS_KEY",
+                    confidence_score=1.0,
+                    **attribution
+                )
 
             # Network Socket / IP Node
             if e.get("dst_ip") or (e.get("src_ip") and source == "network"):
@@ -102,7 +135,13 @@ class EvidenceGraphBuilder:
                         title=f"Network Socket: {dst_socket} ({e.get('protocol')})",
                         **NODE_STYLES["network"]
                     )
-                self.graph.add_edge(ev_id, net_node_id, relationship_type="TARGETS_SOCKET", confidence_score=1.0)
+                self.graph.add_edge(
+                    ev_id,
+                    net_node_id,
+                    relationship_type="TARGETS_SOCKET",
+                    confidence_score=1.0,
+                    **attribution
+                )
 
             # File Node
             if e.get("file_path") and e.get("event_type", "").startswith("FILE_"):
@@ -120,7 +159,13 @@ class EvidenceGraphBuilder:
                         title=f"File: {f_path}",
                         **NODE_STYLES["file"]
                     )
-                self.graph.add_edge(ev_id, file_node_id, relationship_type="ACCESSES_FILE", confidence_score=1.0)
+                self.graph.add_edge(
+                    ev_id,
+                    file_node_id,
+                    relationship_type="ACCESSES_FILE",
+                    confidence_score=1.0,
+                    **attribution
+                )
 
             # Add Event Node
             style = NODE_STYLES.get(source, NODE_STYLES["event"])

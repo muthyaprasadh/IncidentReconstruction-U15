@@ -1,0 +1,631 @@
+{
+  "case_id": "EXP-03-REPEAT-REAL",
+  "scenario_name": "EXP-03-REPEAT controlled Registry, process, and network activity",
+  "dataset_type": "real_world",
+  "incident_event_ids": [
+    "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+    "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+    "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+    "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
+    "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
+    "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
+    "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
+    "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
+    "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
+    "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
+    "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
+    "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
+    "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
+    "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
+    "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
+    "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
+    "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
+    "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
+    "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
+    "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
+    "EVT-NET-exp-03-repeat-wireshark-P13887-98c837",
+    "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+    "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+    "EVT-PROC-logfile-R242789-b931f4",
+    "EVT-PROC-logfile-R242790-e14edf",
+    "EVT-PROC-logfile-R265182-4fb548",
+    "EVT-PROC-logfile-R266234-0a83aa",
+    "EVT-REG-logfile-R240796-a6c696",
+    "EVT-REG-logfile-R240803-b54fd3",
+    "EVT-REG-logfile-R241242-28f783",
+    "EVT-REG-logfile-R241478-edaa78"
+  ],
+  "expected_relationships": [
+    [
+      "EVT-PROC-logfile-R242789-b931f4",
+      "EVT-PROC-logfile-R242790-e14edf",
+      "SPAWNED"
+    ],
+    [
+      "EVT-PROC-logfile-R242789-b931f4",
+      "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+      "SPAWNED"
+    ],
+    [
+      "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+      "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+      "SPAWNED"
+    ],
+    [
+      "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+      "EVT-PROC-logfile-R265182-4fb548",
+      "SPAWNED"
+    ],
+    [
+      "EVT-PROC-logfile-R242789-b931f4",
+      "EVT-REG-logfile-R240796-a6c696",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-logfile-R242789-b931f4",
+      "EVT-REG-logfile-R240803-b54fd3",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-logfile-R242789-b931f4",
+      "EVT-REG-logfile-R241242-28f783",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-logfile-R242789-b931f4",
+      "EVT-REG-logfile-R241478-edaa78",
+      "MODIFIED"
+    ],
+    [
+      "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-PROC-logfile-R265182-4fb548",
+      "EVT-PROC-logfile-R266234-0a83aa",
+      "CONNECTED_TO"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
+      "OBSERVED_IN"
+    ],
+    [
+      "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+      "EVT-NET-exp-03-repeat-wireshark-P13887-98c837",
+      "OBSERVED_IN"
+    ]
+  ],
+  "ground_truth_chronology": [
+    "EVT-REG-logfile-R240796-a6c696",
+    "EVT-REG-logfile-R240803-b54fd3",
+    "EVT-REG-logfile-R241242-28f783",
+    "EVT-REG-logfile-R241478-edaa78",
+    "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+    "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+    "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+    "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+    "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31"
+  ],
+  "evidence_mappings": [
+    {
+      "file_path": "data\\raw\\EXP-03-REPEAT-REAL\\experiment-notes.txt",
+      "sha256": "9fa802b072ec1fd7cae978931481fd22759722e23550ac1339dc45907dfe0ba4",
+      "source_type": "experiment_log",
+      "event_records": [],
+      "supports": "Recorded experiment window, process PIDs, Registry key, and intended curl.exe activity."
+    },
+    {
+      "file_path": "data\\raw\\EXP-03-REPEAT-REAL\\Logfile.CSV",
+      "sha256": "daed57b01b975d40bb190983b3896c8e9eafd1cebc5c4b8be7dd0d8c339b2e89",
+      "source_type": "procmon_csv",
+      "event_records": [
+        {
+          "event_id": "EVT-REG-logfile-R240796-a6c696",
+          "record_reference": "Row 240796",
+          "description": "RegDeleteKey, PID 12232, SUCCESS."
+        },
+        {
+          "event_id": "EVT-REG-logfile-R240803-b54fd3",
+          "record_reference": "Row 240803",
+          "description": "RegCreateKey, PID 12232, SUCCESS."
+        },
+        {
+          "event_id": "EVT-REG-logfile-R241242-28f783",
+          "record_reference": "Row 241242",
+          "description": "RegSetValue ExperimentID=EXP-03-REPEAT, PID 12232, SUCCESS."
+        },
+        {
+          "event_id": "EVT-REG-logfile-R241478-edaa78",
+          "record_reference": "Row 241478",
+          "description": "RegSetValue Status=EvidenceCollection, PID 12232, SUCCESS."
+        },
+        {
+          "event_id": "EVT-PROC-logfile-R242789-b931f4",
+          "record_reference": "Row 242789",
+          "description": "Process Create by PID 12232; raw Detail names child PID 34656."
+        },
+        {
+          "event_id": "EVT-PROC-logfile-R242790-e14edf",
+          "record_reference": "Row 242790",
+          "description": "Process Start PID 34656; raw Detail reports Parent PID 12232."
+        },
+        {
+          "event_id": "EVT-PROC-logfile-R265182-4fb548",
+          "record_reference": "Row 265182",
+          "description": "Process Start curl.exe PID 24524; raw Detail reports Parent PID 34656 and example.com command."
+        },
+        {
+          "event_id": "EVT-PROC-logfile-R266234-0a83aa",
+          "record_reference": "Row 266234",
+          "description": "TCP Connect by curl.exe PID 24524 to 104.20.23.154:https from local port 50420; SUCCESS."
+        }
+      ],
+      "original_artifact": true
+    },
+    {
+      "file_path": "data\\raw\\EXP-03-REPEAT-REAL\\Logfile.PML",
+      "sha256": "49615e7a4754e863904a3ce66353416cc9ee37debeb9fdf08e45520a1861a999",
+      "source_type": "procmon_native",
+      "event_records": [],
+      "original_artifact": true,
+      "parsed_export": "Logfile.CSV"
+    },
+    {
+      "file_path": "data\\raw\\EXP-03-REPEAT-REAL\\EXP-03-REPEAT-sysmon.evtx",
+      "sha256": "cec3b0c1926d275a8cefbc1ee37febbe16edf7afbdaee973c972875ab316fd8e",
+      "source_type": "sysmon_evtx",
+      "event_records": [],
+      "original_artifact": true,
+      "derived_export": "EXP-03-REPEAT-sysmon-window.xml"
+    },
+    {
+      "file_path": "data\\raw\\EXP-03-REPEAT-REAL\\EXP-03-REPEAT-sysmon-window.xml",
+      "sha256": "41d2a92fbabe62cd45fa072f39470be2d01b71abb62328aeb612d7b4274e5ec1",
+      "source_type": "sysmon_xml_export",
+      "event_records": [
+        {
+          "event_id": "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+          "record_reference": "Event 5",
+          "sysmon_event_id": 3,
+          "description": "PID 24524, all-zero ProcessGuid, exact TCP tuple; timestamp range recorded as uncertain."
+        },
+        {
+          "event_id": "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+          "record_reference": "Event 7",
+          "sysmon_event_id": 1,
+          "description": "curl.exe PID 24524, ParentProcessId 34656."
+        },
+        {
+          "event_id": "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+          "record_reference": "Event 9",
+          "sysmon_event_id": 1,
+          "description": "PowerShell PID 34656, ParentProcessId 12232."
+        }
+      ],
+      "original_artifact": false,
+      "derived_from": "EXP-03-REPEAT-sysmon.evtx"
+    },
+    {
+      "file_path": "data\\raw\\EXP-03-REPEAT-REAL\\EXP-03-REPEAT-wireshark.pcapng",
+      "sha256": "b387983677cec27486da333ba4124babadf1ff6169170cb4bb0b56f14feb124f",
+      "source_type": "wireshark_pcapng",
+      "event_records": [
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+          "record_reference": "Packet #13843",
+          "timestamp": "2026-11-21T06:27:36.152186+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [S]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+          "record_reference": "Packet #13845",
+          "timestamp": "2026-11-21T06:27:36.170623+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [SA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
+          "record_reference": "Packet #13846",
+          "timestamp": "2026-11-21T06:27:36.170750+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
+          "record_reference": "Packet #13847",
+          "timestamp": "2026-11-21T06:27:36.175830+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [PA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
+          "record_reference": "Packet #13850",
+          "timestamp": "2026-11-21T06:27:36.193860+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
+          "record_reference": "Packet #13852",
+          "timestamp": "2026-11-21T06:27:36.198980+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
+          "record_reference": "Packet #13853",
+          "timestamp": "2026-11-21T06:27:36.200433+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
+          "record_reference": "Packet #13854",
+          "timestamp": "2026-11-21T06:27:36.200434+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
+          "record_reference": "Packet #13855",
+          "timestamp": "2026-11-21T06:27:36.200435+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [PA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
+          "record_reference": "Packet #13856",
+          "timestamp": "2026-11-21T06:27:36.200502+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
+          "record_reference": "Packet #13858",
+          "timestamp": "2026-11-21T06:27:36.219465+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [PA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
+          "record_reference": "Packet #13859",
+          "timestamp": "2026-11-21T06:27:36.219675+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [PA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
+          "record_reference": "Packet #13862",
+          "timestamp": "2026-11-21T06:27:36.237597+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
+          "record_reference": "Packet #13864",
+          "timestamp": "2026-11-21T06:27:36.258584+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [PA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
+          "record_reference": "Packet #13865",
+          "timestamp": "2026-11-21T06:27:36.258585+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [PA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
+          "record_reference": "Packet #13866",
+          "timestamp": "2026-11-21T06:27:36.258661+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [A]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
+          "record_reference": "Packet #13867",
+          "timestamp": "2026-11-21T06:27:36.259937+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [PA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
+          "record_reference": "Packet #13868",
+          "timestamp": "2026-11-21T06:27:36.260082+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [FA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
+          "record_reference": "Packet #13886",
+          "timestamp": "2026-11-21T06:27:36.280244+00:00",
+          "five_tuple": {
+            "src_ip": "104.20.23.154",
+            "src_port": 443,
+            "dst_ip": "192.168.0.114",
+            "dst_port": 50420,
+            "protocol": "TCP"
+          },
+          "packet_info": "443 -> 50420 [FA]"
+        },
+        {
+          "event_id": "EVT-NET-exp-03-repeat-wireshark-P13887-98c837",
+          "record_reference": "Packet #13887",
+          "timestamp": "2026-11-21T06:27:36.280321+00:00",
+          "five_tuple": {
+            "src_ip": "192.168.0.114",
+            "src_port": 50420,
+            "dst_ip": "104.20.23.154",
+            "dst_port": 443,
+            "protocol": "TCP"
+          },
+          "packet_info": "50420 -> 443 [A]"
+        }
+      ],
+      "original_artifact": true
+    },
+    {
+      "file_path": "data\\raw\\EXP-03-REPEAT-REAL\\SHA256-manifest.csv",
+      "sha256": "95f9869e684e4c8111cd6147be6e1b36ab3ed9881af7903473d03851441cdfad",
+      "source_type": "integrity_manifest",
+      "event_records": [],
+      "original_artifact": false
+    }
+  ],
+  "incident_phases": [
+    {
+      "phase": "Registry setup",
+      "event_ids": [
+        "EVT-REG-logfile-R240796-a6c696",
+        "EVT-REG-logfile-R240803-b54fd3",
+        "EVT-REG-logfile-R241242-28f783",
+        "EVT-REG-logfile-R241478-edaa78"
+      ],
+      "evidence_basis": "Procmon raw CSV rows 240796, 240803, 241242, and 241478; experiment-notes.txt identifies the same test key and values."
+    },
+    {
+      "phase": "Process creation",
+      "event_ids": [
+        "EVT-PROC-logfile-R242789-b931f4",
+        "EVT-PROC-logfile-R242790-e14edf",
+        "EVT-PROC-exp-03-repeat-sysmon-window-R00009-a340a0",
+        "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+        "EVT-PROC-logfile-R265182-4fb548"
+      ],
+      "evidence_basis": "Procmon raw process-create/start details and Sysmon Event ID 1 ParentProcessId fields."
+    },
+    {
+      "phase": "Network connection",
+      "event_ids": [
+        "EVT-PROC-exp-03-repeat-sysmon-window-R00007-04e3ec",
+        "EVT-PROC-logfile-R266234-0a83aa",
+        "EVT-NET-exp-03-repeat-sysmon-window-R00005-f3fa15",
+        "EVT-NET-exp-03-repeat-wireshark-P13843-67f20a",
+        "EVT-NET-exp-03-repeat-wireshark-P13845-2e4ecf",
+        "EVT-NET-exp-03-repeat-wireshark-P13846-b26e31",
+        "EVT-NET-exp-03-repeat-wireshark-P13847-ff2a22",
+        "EVT-NET-exp-03-repeat-wireshark-P13850-b075bf",
+        "EVT-NET-exp-03-repeat-wireshark-P13852-0dd900",
+        "EVT-NET-exp-03-repeat-wireshark-P13853-e85de7",
+        "EVT-NET-exp-03-repeat-wireshark-P13854-e4a39e",
+        "EVT-NET-exp-03-repeat-wireshark-P13855-69f121",
+        "EVT-NET-exp-03-repeat-wireshark-P13856-94818c",
+        "EVT-NET-exp-03-repeat-wireshark-P13858-fb340f",
+        "EVT-NET-exp-03-repeat-wireshark-P13859-9195b2",
+        "EVT-NET-exp-03-repeat-wireshark-P13862-3103b6",
+        "EVT-NET-exp-03-repeat-wireshark-P13864-40dc44",
+        "EVT-NET-exp-03-repeat-wireshark-P13865-3f487f",
+        "EVT-NET-exp-03-repeat-wireshark-P13866-0b08fa",
+        "EVT-NET-exp-03-repeat-wireshark-P13867-d7f5e5",
+        "EVT-NET-exp-03-repeat-wireshark-P13868-89bfbe",
+        "EVT-NET-exp-03-repeat-wireshark-P13886-431ebd",
+        "EVT-NET-exp-03-repeat-wireshark-P13887-98c837"
+      ],
+      "evidence_basis": "Procmon TCP Connect, Sysmon Event ID 3, and PCAPNG exact five-tuple; Sysmon Event 5 has an all-zero ProcessGuid and discrepant timestamps."
+    }
+  ],
+  "notes": "Ground truth was assembled from experiment-notes.txt and direct inspection of original Procmon CSV rows, exported Sysmon XML records, and original PCAPNG frames; correlation predictions were not used to select expected relationships. The activity was a benign controlled test: PowerShell modified HKCU\\Software\\IncidentReconstructionLab, launched child PowerShell, and curl.exe requested https://example.com. This does not establish malicious activity or data exfiltration. Sysmon Event 5 reports PID 24524 and the matching TCP tuple but has an all-zero ProcessGuid and unknown image; no ProcessGuid was imputed. Its UtcTime and XML SystemTime disagree by several seconds, so its scalar timestamp is excluded from chronology. The chronology is intentionally partial: cross-source ordering around process creation and the TCP SYN has small timing differences, and the Sysmon network event is uncertain. Registry operations and packet handshake ordering are anchored to their respective raw record times. Procmon CSV contains the Registry operation history; there is no separate .reg artifact.",
+  "origin": "experiment_notes_and_raw_evidence",
+  "independent_of_correlation_engine": true
+}

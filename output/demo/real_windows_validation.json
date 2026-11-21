@@ -1,0 +1,44 @@
+{
+  "dataset_type": "REAL_WINDOWS_VALIDATION",
+  "warning": "No case is valid until an independent ground-truth manifest and original artifact hashes pass.",
+  "cases": [
+    {
+      "case_id": "EXP-03-REPEAT-REAL",
+      "validation_passed": true,
+      "evidence_artifacts": 7,
+      "artifact_hashes": [
+        {
+          "file": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\raw\\EXP-03-REPEAT-REAL\\experiment-notes.txt",
+          "sha256": "9fa802b072ec1fd7cae978931481fd22759722e23550ac1339dc45907dfe0ba4"
+        },
+        {
+          "file": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\raw\\EXP-03-REPEAT-REAL\\Logfile.CSV",
+          "sha256": "daed57b01b975d40bb190983b3896c8e9eafd1cebc5c4b8be7dd0d8c339b2e89"
+        },
+        {
+          "file": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\raw\\EXP-03-REPEAT-REAL\\Logfile.PML",
+          "sha256": "49615e7a4754e863904a3ce66353416cc9ee37debeb9fdf08e45520a1861a999"
+        },
+        {
+          "file": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\raw\\EXP-03-REPEAT-REAL\\EXP-03-REPEAT-sysmon.evtx",
+          "sha256": "cec3b0c1926d275a8cefbc1ee37febbe16edf7afbdaee973c972875ab316fd8e"
+        },
+        {
+          "file": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\raw\\EXP-03-REPEAT-REAL\\EXP-03-REPEAT-sysmon-window.xml",
+          "sha256": "41d2a92fbabe62cd45fa072f39470be2d01b71abb62328aeb612d7b4274e5ec1"
+        },
+        {
+          "file": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\raw\\EXP-03-REPEAT-REAL\\EXP-03-REPEAT-wireshark.pcapng",
+          "sha256": "b387983677cec27486da333ba4124babadf1ff6169170cb4bb0b56f14feb124f"
+        },
+        {
+          "file": "C:\\Users\\hp\\OneDrive\\Desktop\\IncidentReconstruction_U15_Completed(1)\\IncidentReconstruction_U15_Completed\\data\\raw\\EXP-03-REPEAT-REAL\\SHA256-manifest.csv",
+          "sha256": "95f9869e684e4c8111cd6147be6e1b36ab3ed9881af7903473d03851441cdfad"
+        }
+      ],
+      "ground_truth_event_count": 31,
+      "ground_truth_relationship_count": 30
+    }
+  ],
+  "valid_case_count": 1
+}

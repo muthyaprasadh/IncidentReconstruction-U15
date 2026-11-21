@@ -1,0 +1,13 @@
+case_id,scenario_id,configuration,feature_ablated,events_analyzed,precision,recall,f1_score,false_positive_rate,rel_precision,rel_recall,rel_f1,rel_accuracy,tp,fp,fn
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Full Proposed Graph Method,None (Full System),18,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Ablation A: Remove ProcessGuid,ProcessGuid Matching,18,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Ablation B: Remove Timestamp Window,Timestamp Temporal Windowing,18,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Ablation C: Remove Registry Evidence,Registry Evidence Source,9,1.0,0.9,0.9474,0.0,0.8333,0.8333,0.8333,0.8333,9,0,1
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Ablation D: Remove 5-Tuple Matching,Direction-Aware 5-Tuple Matching,18,1.0,0.7,0.8235,0.0,0.6667,0.3333,0.4444,0.3333,7,0,3
+CASE-06-06_MULTI_ATTACK_01,CASE-06-MULTI-ATTACK-01,Ablation E: Remove Process Lifetime Validation,Process Lifetime / Epoch Validation,18,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0
+CASE-20-20_HELD_OUT_MIXED,CASE-20-HELD-OUT-MIXED,Full Proposed Graph Method,None (Full System),19,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0
+CASE-20-20_HELD_OUT_MIXED,CASE-20-HELD-OUT-MIXED,Ablation A: Remove ProcessGuid,ProcessGuid Matching,19,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0
+CASE-20-20_HELD_OUT_MIXED,CASE-20-HELD-OUT-MIXED,Ablation B: Remove Timestamp Window,Timestamp Temporal Windowing,19,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0
+CASE-20-20_HELD_OUT_MIXED,CASE-20-HELD-OUT-MIXED,Ablation C: Remove Registry Evidence,Registry Evidence Source,10,1.0,0.9,0.9474,0.0,0.8333,0.8333,0.8333,0.8333,9,0,1
+CASE-20-20_HELD_OUT_MIXED,CASE-20-HELD-OUT-MIXED,Ablation D: Remove 5-Tuple Matching,Direction-Aware 5-Tuple Matching,19,1.0,0.7,0.8235,0.0,0.6667,0.3333,0.4444,0.3333,7,0,3
+CASE-20-20_HELD_OUT_MIXED,CASE-20-HELD-OUT-MIXED,Ablation E: Remove Process Lifetime Validation,Process Lifetime / Epoch Validation,19,1.0,1.0,1.0,0.0,0.8571,1.0,0.9231,1.0,10,0,0

@@ -59,6 +59,19 @@ The authoritative synthetic catalog has 19 development scenarios (`CASE-01` to `
 
 Ground truth is stored separately from parser and correlation output. Event metrics use the union of normalized events. Relationship metrics compare exact source, target and relationship-type triples. Timeline accuracy compares predicted and ground-truth incident chronology. The report must not present synthetic held-out evaluation as real-world performance.
 
+### EXP-03 exploratory real-case comparison
+
+The current EXP-03 development comparison evaluated exact event-ID relationship matches against 30 canonical expected links among 31 labeled incident events:
+
+| Method | Expected links matched | Expected-link coverage |
+|---|---:|---:|
+| Process-only | 0/30 | 0% |
+| Process + Registry | 9/30 | 30% |
+| Conventional all-source, one-hop | 10/30 | 33.3% |
+| Proposed provenance graph | 30/30 | 100% |
+
+This is positive-label coverage on one real development case, not relationship precision, F1, false-positive rate, or evidence that the proposed method is generally superior. The ground truth does not exhaustively enumerate alternative event-level pairings; predictions that do not exactly match its canonical event IDs are unreviewed rather than false positives. Process-only produced two such unreviewed scoped relationships. The case was inspected while correlation rules were being refined, the ground-truth chronology is partial, and a second independent human review has not been completed. Event-detection metrics, timeline accuracy, ablation, sensitivity, and held-out real performance are therefore not reported. The machine-readable comparison and limitations are in `output/reports/EXP-03-REPEAT-REAL_baseline_comparison.json`.
+
 ## Ablation Study
 
 The ablation suite explicitly disables ProcessGuid, timestamp matching, Registry evidence, network five-tuple matching or process lifetime validation in the correlation engine.

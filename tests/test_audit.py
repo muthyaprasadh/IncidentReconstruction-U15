@@ -425,6 +425,252 @@ class TestForensicAuditAndIntegrity(unittest.TestCase):
         self.assertEqual(source_ev.process_name, "mal_agent.exe")
         self.assertNotEqual(source_ev.process_name, "servicea.exe")
 
+    def test_procmon_process_create_and_observed_pid_attribution(self):
+        case_id = "PROC-CREATE-LINEAGE"
+        parser = ProcmonParser(case_id)
+
+        def parse_record(row_idx, raw_time, raw_pid, raw_op, raw_detail):
+            return parser._convert_record(
+                row_idx=row_idx,
+                evidence_file="Logfile.CSV",
+                raw_time=raw_time,
+                raw_proc="powershell.exe",
+                raw_pid=raw_pid,
+                raw_op=raw_op,
+                raw_path="",
+                raw_result="SUCCESS",
+                raw_detail=raw_detail,
+                base_date="2026-11-10",
+                timezone_name="UTC",
+            )
+
+        parent_activity = parse_record(1, "10:00:00.000", 100, "CreateFile", "")
+        parent_create = parse_record(2, "10:00:01.000", 100, "Process Create", "PID: 200, Command line: child.exe")
+        child_start = parse_record(3, "10:00:01.010", 200, "Process Start", "Parent PID: 100")
+
+        self.assertEqual(parent_activity.event_type, "FILE_CREATEFILE")
+        self.assertEqual(parent_create.event_type, "PROCESS_CREATE")
+        self.assertEqual(parent_create.metadata["created_pid"], 200)
+        self.assertEqual(child_start.event_type, "PROCESS_START")
+        self.assertEqual(child_start.ppid, 100)
+
+        registry_event = NormalizedEvent(
+            event_id="EVT-REG-OBSERVED-PID",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:01.005Z",
+            original_timestamp="10:00:01.005",
+            source="registry",
+            event_type="REG_SET_VALUE",
+            pid=100,
+            process_name="powershell.exe",
+            registry_key=r"HKCU\Software\Test",
+            registry_operation="RegSetValue",
+        )
+        events = [parent_activity, parent_create, child_start, registry_event]
+        tracker = ProcessLifetimeTracker()
+        tracker.register_events(events)
+
+        parent_epoch = tracker.get_active_epoch(100, child_start.timestamp)
+        self.assertIsNotNone(parent_epoch)
+        self.assertFalse(parent_epoch.is_explicit_start)
+        self.assertEqual(parent_epoch.start_event_id, parent_activity.event_id)
+
+        spawned = [
+            rel for rel in ProcessCorrelator.correlate_process_tree(
+                events, case_id, tracker
+            )
+            if rel.relationship_type == "SPAWNED"
+        ]
+        self.assertEqual(len(spawned), 1)
+        self.assertEqual(spawned[0].source_event_id, parent_create.event_id)
+        self.assertEqual(spawned[0].target_event_id, child_start.event_id)
+        self.assertIn("explicitly names child PID 200", spawned[0].explanation)
+
+        modified = [
+            rel for rel in RegistryCorrelator.correlate_registry_events(
+                events, case_id, tracker
+            )
+            if rel.target_event_id == registry_event.event_id
+        ]
+        self.assertEqual(len(modified), 1)
+        self.assertEqual(modified[0].source_event_id, parent_create.event_id)
+        self.assertIn("no explicit process-start record was captured", modified[0].explanation)
+
+    def test_explicit_start_supersedes_prior_observation_epoch(self):
+        case_id = "PROC-OBSERVED-EPOCH"
+        activity = NormalizedEvent(
+            event_id="EVT-PROC-OBSERVATION",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:00Z",
+            original_timestamp="10:00:00",
+            source="process",
+            event_type="FILE_CREATEFILE",
+            pid=321,
+            process_name="worker.exe",
+        )
+        start = NormalizedEvent(
+            event_id="EVT-PROC-EXPLICIT-START",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:05Z",
+            original_timestamp="10:00:05",
+            source="process",
+            event_type="PROCESS_START",
+            pid=321,
+            process_name="worker.exe",
+        )
+
+        tracker = ProcessLifetimeTracker()
+        tracker.register_events([activity, start])
+
+        observed_epoch = tracker.get_active_epoch(321, "2026-11-10T10:00:04Z")
+        explicit_epoch = tracker.get_active_epoch(321, "2026-11-10T10:00:06Z")
+        self.assertIsNotNone(observed_epoch)
+        self.assertFalse(observed_epoch.is_explicit_start)
+        self.assertIsNotNone(explicit_epoch)
+        self.assertTrue(explicit_epoch.is_explicit_start)
+        self.assertEqual(explicit_epoch.start_event_id, start.event_id)
+
+    def test_spawn_relationship_preserves_start_and_create_provenance(self):
+        case_id = "PROC-CREATE-PROVENANCE"
+        parent_start = NormalizedEvent(
+            event_id="EVT-PARENT-START",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:00Z",
+            original_timestamp="10:00:00",
+            source="process",
+            event_type="PROCESS_START",
+            pid=100,
+            process_name="parent.exe",
+        )
+        parent_create = NormalizedEvent(
+            event_id="EVT-PARENT-CREATE",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:01Z",
+            original_timestamp="10:00:01",
+            source="process",
+            event_type="PROCESS_CREATE",
+            pid=100,
+            process_name="parent.exe",
+            metadata={"created_pid": 200},
+        )
+        child_start = NormalizedEvent(
+            event_id="EVT-CHILD-START",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:01Z",
+            original_timestamp="10:00:01",
+            source="process",
+            event_type="PROCESS_START",
+            pid=200,
+            ppid=100,
+            process_name="child.exe",
+        )
+        events = [parent_start, parent_create, child_start]
+        tracker = ProcessLifetimeTracker()
+        tracker.register_events(events)
+
+        relationships = ProcessCorrelator.correlate_process_tree(
+            events, case_id, tracker
+        )
+        self.assertEqual(
+            {
+                (rel.source_event_id, rel.target_event_id, rel.relationship_type)
+                for rel in relationships
+            },
+            {
+                (parent_start.event_id, child_start.event_id, "SPAWNED"),
+                (parent_create.event_id, child_start.event_id, "SPAWNED"),
+            },
+        )
+
+    def test_procmon_tcp_connect_uses_active_process_start(self):
+        case_id = "PROC-NETWORK-PID"
+        process_start = NormalizedEvent(
+            event_id="EVT-PROC-TCP-START",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:00Z",
+            original_timestamp="10:00:00",
+            source="process",
+            event_type="PROCESS_START",
+            pid=24524,
+            process_name="curl.exe",
+            evidence_file="Logfile.CSV",
+            evidence_reference="Row 10",
+        )
+        connection = NormalizedEvent(
+            event_id="EVT-PROC-TCP-CONNECT",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:01Z",
+            original_timestamp="10:00:01",
+            source="process",
+            event_type="TCP_CONNECT",
+            pid=24524,
+            process_name="curl.exe",
+            evidence_file="Logfile.CSV",
+            evidence_reference="Row 11",
+            metadata={"raw_operation": "TCP Connect"},
+        )
+        events = [process_start, connection]
+        tracker = ProcessLifetimeTracker()
+        tracker.register_events(events)
+
+        relationships = NetworkCorrelator.correlate_network_events(
+            events, case_id, tracker
+        )
+        connected = [
+            rel for rel in relationships
+            if rel.target_event_id == connection.event_id
+        ]
+        self.assertEqual(len(connected), 1)
+        self.assertEqual(connected[0].source_event_id, process_start.event_id)
+        self.assertEqual(connected[0].relationship_type, "CONNECTED_TO")
+        self.assertIn("PID:24524", connected[0].supporting_identifiers)
+
+        exited_process = NormalizedEvent(
+            event_id="EVT-PROC-TCP-EXIT",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:02Z",
+            original_timestamp="10:00:02",
+            source="process",
+            event_type="PROCESS_EXIT",
+            pid=24524,
+            process_name="curl.exe",
+        )
+        stale_connection = NormalizedEvent(
+            event_id="EVT-PROC-TCP-STALE-CONNECT",
+            case_id=case_id,
+            timestamp="2026-11-10T10:00:03Z",
+            original_timestamp="10:00:03",
+            source="process",
+            event_type="TCP_CONNECT",
+            pid=24524,
+            process_name="curl.exe",
+            evidence_file="Logfile.CSV",
+        )
+        stale_events = [process_start, connection, exited_process, stale_connection]
+        stale_tracker = ProcessLifetimeTracker()
+        stale_tracker.register_events(stale_events)
+        stale_relationships = NetworkCorrelator.correlate_network_events(
+            stale_events, case_id, stale_tracker
+        )
+        self.assertFalse(any(
+            rel.target_event_id == stale_connection.event_id
+            for rel in stale_relationships
+        ))
+
+    def test_partial_relationship_labels_do_not_count_unreviewed_links_as_false_positives(self):
+        expected = ("EVT-PARENT", "EVT-CHILD", "SPAWNED")
+        alternative = ("EVT-OTHER-PARENT-RECORD", "EVT-CHILD", "SPAWNED")
+        metrics = ForensicEvaluator.calculate_labeled_relationship_coverage(
+            [expected, alternative],
+            [expected],
+            {"EVT-PARENT", "EVT-OTHER-PARENT-RECORD", "EVT-CHILD"},
+        )
+
+        self.assertEqual(metrics["exact_expected_relationship_matches"], 1)
+        self.assertEqual(metrics["expected_link_coverage"], 1.0)
+        self.assertEqual(metrics["unreviewed_scoped_relationships"], [list(alternative)])
+        self.assertNotIn("precision", metrics)
+
     def test_06_missing_and_uncertain_timestamps(self):
         """Priority 5: Normalizer must never substitute current time for missing/invalid timestamps."""
         # None timestamp

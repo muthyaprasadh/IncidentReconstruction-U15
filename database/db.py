@@ -458,7 +458,67 @@ def replace_case_ingestion(
     finally:
         conn.close()
 
-def get_events(case_id: str, source: Optional[str] = None, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+def get_event_count(case_id: str) -> int:
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            "SELECT COUNT(*) AS event_count FROM events WHERE case_id = ?;",
+            (case_id,),
+        ).fetchone()
+        return int(row["event_count"])
+    finally:
+        conn.close()
+
+def get_most_correlated_events(case_id: str, limit: int) -> List[Dict[str, Any]]:
+    if limit < 1:
+        raise ValueError("limit must be positive")
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            """
+            WITH endpoint_counts AS (
+                SELECT source_event_id AS event_id, COUNT(*) AS relationship_count
+                FROM relationships
+                WHERE case_id = ?
+                GROUP BY source_event_id
+                UNION ALL
+                SELECT target_event_id AS event_id, COUNT(*) AS relationship_count
+                FROM relationships
+                WHERE case_id = ?
+                GROUP BY target_event_id
+            ),
+            ranked_events AS (
+                SELECT event_id, SUM(relationship_count) AS relationship_count
+                FROM endpoint_counts
+                GROUP BY event_id
+            )
+            SELECT events.*
+            FROM events
+            JOIN ranked_events
+              ON ranked_events.event_id = events.event_id
+            WHERE events.case_id = ?
+            ORDER BY ranked_events.relationship_count DESC, events.timestamp ASC
+            LIMIT ?;
+            """,
+            (case_id, case_id, case_id, int(limit)),
+        ).fetchall()
+        results = []
+        for row in rows:
+            event = dict(row)
+            event["metadata"] = json.loads(event["metadata_json"]) if event.get("metadata_json") else {}
+            if not event.get("process_guid"):
+                event["process_guid"] = event["metadata"].get("ProcessGuid") or event["metadata"].get("process_guid") or ""
+            results.append(event)
+        return results
+    finally:
+        conn.close()
+
+def get_events(
+    case_id: str,
+    source: Optional[str] = None,
+    limit: Optional[int] = None,
+    newest_first: bool = False,
+) -> List[Dict[str, Any]]:
     conn = get_db_connection()
     try:
         query = "SELECT * FROM events WHERE case_id = ?"
@@ -466,7 +526,7 @@ def get_events(case_id: str, source: Optional[str] = None, limit: Optional[int] 
         if source:
             query += " AND source = ?"
             params.append(source)
-        query += " ORDER BY timestamp ASC"
+        query += " ORDER BY timestamp DESC" if newest_first else " ORDER BY timestamp ASC"
         if limit:
             query += f" LIMIT {int(limit)}"
         cursor = conn.execute(query, tuple(params))
@@ -536,10 +596,26 @@ def insert_relationships_batch(relationships: List[EventRelationship]) -> int:
     finally:
         conn.close()
 
-def get_relationships(case_id: str) -> List[Dict[str, Any]]:
+def get_relationships(
+    case_id: str,
+    event_ids: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
     conn = get_db_connection()
     try:
-        cursor = conn.execute("SELECT * FROM relationships WHERE case_id = ?;", (case_id,))
+        query = "SELECT * FROM relationships WHERE case_id = ?"
+        params: List[Any] = [case_id]
+        if event_ids is not None:
+            unique_event_ids = list(dict.fromkeys(event_ids))
+            if not unique_event_ids:
+                return []
+            placeholders = ",".join("?" for _ in unique_event_ids)
+            query += (
+                f" AND source_event_id IN ({placeholders})"
+                f" AND target_event_id IN ({placeholders})"
+            )
+            params.extend(unique_event_ids)
+            params.extend(unique_event_ids)
+        cursor = conn.execute(query + ";", tuple(params))
         results = []
         for row in cursor.fetchall():
             d = dict(row)

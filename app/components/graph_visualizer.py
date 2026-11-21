@@ -68,21 +68,10 @@ def render_pyvis_network(graph: nx.MultiDiGraph, height: str = "600px") -> str:
             arrows="to"
         )
 
-    # Save to temp HTML and read back
-    with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as tmp:
-        net.save_graph(tmp.name)
-        tmp_path = tmp.name
-
-    with open(tmp_path, "r", encoding="utf-8") as f:
-        html_content = f.read()
-
-    # Clean up temp file
-    try:
-        Path(tmp_path).unlink()
-    except Exception:
-        pass
-
-    return html_content
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_path = Path(temp_dir) / "evidence_graph.html"
+        net.save_graph(str(output_path))
+        return output_path.read_text(encoding="utf-8")
 
 def render_plotly_network(graph: nx.MultiDiGraph) -> go.Figure:
     """Renders 2D Plotly network graph visualization."""
@@ -98,12 +87,21 @@ def render_plotly_network(graph: nx.MultiDiGraph) -> go.Figure:
             x1, y1 = pos[v]
             edge_x.extend([x0, x1, None])
             edge_y.extend([y0, y1, None])
-            edge_text.append(f"{data.get('relationship_type')} (Conf: {data.get('confidence_score', 0):.2f})")
+            edge_hover = "<br>".join([
+                str(data.get("relationship_type", "RELATED_TO")),
+                str(data.get("relationship_category", "Unknown")),
+                f"Confidence: {data.get('confidence_score', 0):.2f}",
+                str(data.get("correlation_method", "")),
+                str(data.get("explanation", "")),
+                ", ".join(data.get("supporting_identifiers", [])),
+            ])
+            edge_text.extend([edge_hover, edge_hover, ""])
 
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
         line=dict(width=1.5, color="#6B7280"),
-        hoverinfo="none",
+        hoverinfo="text",
+        text=edge_text,
         mode="lines"
     )
 

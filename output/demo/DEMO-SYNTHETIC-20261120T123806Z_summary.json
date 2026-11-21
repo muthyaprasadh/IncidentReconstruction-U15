@@ -1,0 +1,144 @@
+{
+  "case_id": "DEMO-SYNTHETIC-20261120T123806Z",
+  "dataset_type": "SYNTHETIC_DEMONSTRATION_ONLY",
+  "warning": "Generated evidence is synthetic. Do not report these metrics as real Windows experiment results.",
+  "counts": {
+    "procmon_events": 9,
+    "registry_snapshot_entities": 3,
+    "wireshark_packets": 3,
+    "sysmon_events": 3,
+    "total_events": 18,
+    "relationships": 7,
+    "unattributed_packets": 0
+  },
+  "graph_statistics": {
+    "node_count": 27,
+    "edge_count": 33,
+    "density": 0.047,
+    "connected_clusters": 3,
+    "cluster_sizes": [
+      16,
+      7,
+      4
+    ],
+    "central_nodes": [
+      {
+        "node_id": "EVT-NET-sysmon_events-R00002-d142d5",
+        "label": "[NETWORK]\nNET_CONNECT\n10:00:05",
+        "type": "event",
+        "centrality_score": 0.2308,
+        "degree": 6
+      },
+      {
+        "node_id": "proc:svchost.exe:844",
+        "label": "svchost.exe\n(PID:844)",
+        "type": "process",
+        "centrality_score": 0.1923,
+        "degree": 5
+      },
+      {
+        "node_id": "reg:HKLM\\System\\CurrentControlSet\\Services\\Schedule",
+        "label": "Reg:\nntControlSet\\Services\\Schedule",
+        "type": "registry",
+        "centrality_score": 0.1923,
+        "degree": 5
+      },
+      {
+        "node_id": "proc:testapp.exe:4128",
+        "label": "testapp.exe\n(PID:4128)",
+        "type": "process",
+        "centrality_score": 0.1923,
+        "degree": 5
+      },
+      {
+        "node_id": "EVT-PROC-procmon_events-R00006-301e18",
+        "label": "[PROCESS]\nPROCESS_START\n10:00:01",
+        "type": "event",
+        "centrality_score": 0.1538,
+        "degree": 4
+      }
+    ]
+  },
+  "evaluation": [
+    {
+      "method": "Method 1: Process-Only",
+      "event_coverage": 0.5,
+      "tp": 5,
+      "fp": 0,
+      "fn": 5,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1_score": 0.6667,
+      "false_positive_rate": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 2,
+      "rel_fn": 6,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "relationship_attribution_accuracy": 0.0,
+      "timeline_accuracy": 1.0
+    },
+    {
+      "method": "Method 2: Network-Only",
+      "event_coverage": 0.4,
+      "tp": 4,
+      "fp": 0,
+      "fn": 6,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1_score": 0.5714,
+      "false_positive_rate": 0.0,
+      "rel_tp": 3,
+      "rel_fp": 0,
+      "rel_fn": 3,
+      "rel_precision": 1.0,
+      "rel_recall": 0.5,
+      "rel_f1": 0.6667,
+      "relationship_attribution_accuracy": 0.5,
+      "timeline_accuracy": 1.0
+    },
+    {
+      "method": "Method 3: Rule-Based Correlation",
+      "event_coverage": 0.7,
+      "tp": 7,
+      "fp": 0,
+      "fn": 3,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 0.7,
+      "f1_score": 0.8235,
+      "false_positive_rate": 0.0,
+      "rel_tp": 3,
+      "rel_fp": 1,
+      "rel_fn": 3,
+      "rel_precision": 0.75,
+      "rel_recall": 0.5,
+      "rel_f1": 0.6,
+      "relationship_attribution_accuracy": 0.5,
+      "timeline_accuracy": 1.0
+    },
+    {
+      "method": "Method 4: Proposed Cross-Artifact Graph",
+      "event_coverage": 1.0,
+      "tp": 10,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "rel_tp": 6,
+      "rel_fp": 1,
+      "rel_fn": 0,
+      "rel_precision": 0.8571,
+      "rel_recall": 1.0,
+      "rel_f1": 0.9231,
+      "relationship_attribution_accuracy": 1.0,
+      "timeline_accuracy": 1.0
+    }
+  ]
+}

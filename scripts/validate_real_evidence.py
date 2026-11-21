@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 GROUND_TRUTH_DIR = ROOT / "data" / "ground_truth"
+RAW_DATA_DIR = ROOT / "data" / "raw"
 RAW_REAL_DIR = ROOT / "data" / "raw" / "real_windows"
 
 
@@ -89,8 +90,17 @@ def validate_case(case_dir: Path) -> dict:
 
 
 def main() -> int:
-    RAW_REAL_DIR.mkdir(parents=True, exist_ok=True)
-    case_dirs = [path for path in RAW_REAL_DIR.iterdir() if path.is_dir()] if RAW_REAL_DIR.exists() else []
+    case_dirs = []
+    if RAW_REAL_DIR.exists():
+        case_dirs.extend(path for path in RAW_REAL_DIR.iterdir() if path.is_dir())
+    if RAW_DATA_DIR.exists():
+        case_dirs.extend(
+            path for path in RAW_DATA_DIR.iterdir()
+            if path.is_dir()
+            and path != RAW_REAL_DIR
+            and (GROUND_TRUTH_DIR / f"{path.name}_ground_truth.json").exists()
+        )
+    case_dirs = sorted(set(case_dirs), key=lambda path: str(path).lower())
     results = [validate_case(path) for path in case_dirs]
 
     output = ROOT / "output" / "demo" / "real_windows_validation.json"

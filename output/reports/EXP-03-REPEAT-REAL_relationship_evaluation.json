@@ -1,0 +1,48 @@
+{
+  "case_id": "EXP-03-REPEAT-REAL",
+  "evaluation_type": "exact event-relationship match on annotated event subgraph",
+  "dataset_type": "development_real_world",
+  "correlation_temporal_window_seconds": 5.0,
+  "ground_truth": {
+    "incident_event_count": 31,
+    "expected_relationship_count": 30,
+    "source": "experiment notes and raw evidence, independent of correlation predictions"
+  },
+  "evidence_validation": {
+    "valid": true,
+    "artifact_count": 7,
+    "matching_sha256_hashes": 7
+  },
+  "normalized_events_by_source": {
+    "network": 19970,
+    "process": 99172,
+    "registry": 267237
+  },
+  "persisted_prediction_count": 223368,
+  "persisted_predictions_by_type": {
+    "SPAWNED": 43,
+    "ACCESSED": 218420,
+    "MODIFIED": 4868,
+    "CONNECTED_TO": 2,
+    "OBSERVED_IN": 35
+  },
+  "scored_scope": {
+    "description": "Counts exact expected-link matches only. Alternative event-level evidence pairings and predictions involving unlabeled events are unreviewed, not false positives.",
+    "unique_prediction_count": 30
+  },
+  "relationship_metrics": {
+    "exact_expected_relationship_matches": 30,
+    "expected_relationship_count": 30,
+    "expected_link_coverage": 1.0,
+    "unreviewed_scoped_prediction_count": 0,
+    "missing_expected_relationship_count": 0
+  },
+  "unmatched_predictions": [],
+  "missing_expected_relationships": [],
+  "limitations": [
+    "Single development experiment; correlation rules were refined during investigation of this case, so this is not a blind or held-out result.",
+    "The positive edge list may not enumerate every valid event-level evidence pairing; relationship precision and F1 are not computed.",
+    "The 223k-scale ambient predictions are not fully labeled; unlabeled edges are not false positives.",
+    "No baseline comparison, event-detection metrics, false-positive rate, or timeline score is claimed; the chronology is partial."
+  ]
+}

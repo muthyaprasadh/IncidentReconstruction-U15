@@ -14,7 +14,7 @@ Real research evaluation requires independently executed Windows experiments, ac
 
 | Evidence/tool | Role |
 |---|---|
-| Process Monitor (Procmon) | Process, file-system, and Registry operations |
+| Process Monitor (Procmon) | Process lifecycle, file-system, Registry, and PID-attributed TCP/UDP operations |
 | Sysmon Event ID 1 | Process creation and ProcessGuid |
 | Sysmon Event ID 3 | Endpoint network connection telemetry, including process and socket tuple |
 | Wireshark / PCAP | Packet-level network evidence |
@@ -27,6 +27,8 @@ Real research evaluation requires independently executed Windows experiments, ac
 ### Network attribution rule
 
 Wireshark records packets, not Windows PIDs. The system never attributes a packet to a process using timestamps alone. Process-to-network linkage requires Sysmon Event ID 3 endpoint telemetry. Sysmon-to-Wireshark corroboration requires a complete exact five-tuple (source IP, destination IP, source port, destination port, transport protocol), forward or reverse direction, and either a reliable timestamp within the configured window or a packet timestamp inside the bounded `UtcTime`/`SystemTime` uncertainty interval. Uncertain intervals wider than the configured window are not used. If a Sysmon event has no ProcessGuid and no reliable scalar timestamp, PID attribution additionally requires a matching packet observed while that PID's validated process epoch is active. Missing tuple fields do not act as wildcards.
+
+Procmon TCP/UDP operation events are separately attributed through their recorded PID and an explicitly started, active process epoch. They are not treated as Sysmon socket telemetry or as a substitute for complete five-tuple evidence. When available, both the Procmon process-creation record and the parent's process-start record are retained as provenance for a child-process relationship.
 
 ### Timestamp rule
 
@@ -45,6 +47,8 @@ Procmon `Time of Day` is local wall-clock time. The investigator must supply the
 - `tests/` — automated backend/audit tests
 - `config/sysmonconfig.xml` — minimal Sysmon configuration for Event IDs 1 and 3
 - `scripts/` — synthetic end-to-end demo and scenario-catalog validation
+
+The Streamlit graph view is intentionally bounded to a selectable 100–400 event sample so large cases remain navigable. It can select the most-correlated events or the earliest/latest timestamp sample, reports the sample size, and includes only relationships whose two endpoint events are in the sample.
 
 ## Windows installation
 
@@ -121,7 +125,7 @@ Upload the XML export. Binary `.evtx` parsing is not implemented in this version
 4. Save **All events** as CSV.
 5. Record the capture date and timezone; enter the timezone in the evidence upload page.
 
-Procmon is used for process and Registry/file operations. Do not treat it as the network socket attribution source in this project.
+Procmon records process, Registry/file, and TCP/UDP operation events. Its TCP/UDP records can support PID-based process attribution, but do not assume they contain a complete socket tuple or treat them as equivalent to Sysmon Event ID 3.
 
 ### 3. Wireshark
 
@@ -157,11 +161,13 @@ Report event detection and relationship prediction separately. Metrics include p
 
 A fair held-out evaluation must use independent experiment sessions/cases, not randomly split events from one incident. The authoritative synthetic scenario catalog defines **19 development scenarios (CASE-01 through CASE-19)** and **3 held-out scenarios (CASE-20 through CASE-22)**. These synthetic templates become real held-out captures only after independent Windows collection and ground-truth validation.
 
+EXP-03-REPEAT-REAL has a development-only baseline comparison. The proposed method recovered all 30 canonical expected links among the 31 labeled events; this is **expected-link coverage**, not precision or F1. The ground truth does not exhaustively enumerate alternative event-level evidence pairings, and the many ambient predictions remain unreviewed. Correlation rules were refined while investigating this case, so these results are neither blind nor held-out and do not establish superiority over a baseline. See `output/reports/EXP-03-REPEAT-REAL_baseline_comparison.json`; event-detection, false-positive-rate, and timeline metrics remain unmeasured for this real case.
+
 ## Known limitations
 
 - Binary EVTX parsing is not implemented; export Sysmon XML.
 - `.reg` snapshots do not contain historical Registry operation times.
-- Network process attribution depends on Sysmon Event ID 3 being enabled and present.
+- Sysmon-to-Wireshark five-tuple correlation depends on Sysmon Event ID 3 being enabled and present.
 - A Sysmon-to-PCAP match is corroboration, not proof of application-level intent.
 - ProcessGuid availability and event loss depend on Sysmon configuration and collection.
 - Procmon time-of-day records need the correct case date and timezone.

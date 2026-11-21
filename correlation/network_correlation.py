@@ -3,13 +3,15 @@ Network Correlation Engine for U-15 Incident Reconstruction.
 
 Attribution sources:
 1. Sysmon Event ID 3 (process network connection telemetry) with ProcessGuid.
-2. Wireshark / PCAP packet evidence.
-3. Exact five-tuple matching (forward and reverse).
-4. ProcessGuid and PID lifetime validation.
-5. Complete timestamp validation.
+2. Procmon TCP/UDP operation events attributed by PID and process lifetime.
+3. Wireshark / PCAP packet evidence.
+4. Exact five-tuple matching (forward and reverse).
+5. ProcessGuid and PID lifetime validation.
+6. Complete timestamp validation.
 
-Procmon does not provide TCP/UDP network connection telemetry for this engine.
-Wireshark packets are never attributed to a process using timestamps alone.
+Procmon operation events are not treated as Sysmon socket telemetry or as a
+substitute for complete five-tuple evidence. Wireshark packets are never
+attributed to a process using timestamps alone.
 """
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
@@ -121,7 +123,96 @@ class NetworkCorrelator:
             if pe.pid is not None:
                 by_pid.setdefault(pe.pid, []).append(pe)
 
-        # 1. Directly observed: Sysmon EID 3 bound to process via ProcessGuid (preferred) or PID lifetime
+        # 1. Procmon records the acting PID for TCP/UDP operations. Attribute
+        # those records only to an active, explicitly started process epoch.
+        procmon_connects = [
+            e for e in proc_events
+            if e.event_type.upper() in ("TCP_CONNECT", "UDP_CONNECT")
+        ]
+        for connection in procmon_connects:
+            if connection.pid is None or not connection.timestamp:
+                continue
+            connection_dt = Normalizer.try_parse_complete_datetime(connection.timestamp)
+            if connection_dt is None:
+                continue
+
+            guid = event_process_guid(connection)
+            epoch = tracker.get_active_epoch(
+                connection.pid,
+                connection.timestamp,
+                process_guid=guid
+            )
+            if (
+                epoch is None
+                or not epoch.is_explicit_start
+                or not tracker.is_pid_active(
+                    connection.pid,
+                    connection.process_name,
+                    connection.timestamp,
+                    process_guid=guid
+                )
+            ):
+                continue
+
+            same_artifact_starts = []
+            if connection.evidence_file:
+                for candidate in by_pid.get(connection.pid, []):
+                    if (
+                        candidate.event_type.upper() != "PROCESS_START"
+                        or candidate.evidence_file != connection.evidence_file
+                        or not candidate.timestamp
+                    ):
+                        continue
+                    candidate_dt = Normalizer.try_parse_complete_datetime(candidate.timestamp)
+                    if (
+                        candidate_dt is None
+                        or candidate_dt < epoch.start_time
+                        or candidate_dt > connection_dt
+                    ):
+                        continue
+                    if candidate.process_name and connection.process_name and (
+                        candidate.process_name.lower() != connection.process_name.lower()
+                    ):
+                        continue
+                    same_artifact_starts.append((candidate_dt, candidate))
+
+            process_event = (
+                max(same_artifact_starts, key=lambda item: item[0])[1]
+                if same_artifact_starts
+                else events_by_id.get(epoch.start_event_id)
+            )
+            if process_event is None:
+                continue
+
+            operation = (connection.metadata or {}).get("raw_operation") or connection.event_type
+            destination = (
+                f"{connection.dst_ip}:{connection.dst_port}"
+                if connection.dst_ip and connection.dst_port is not None
+                else ""
+            )
+            relationships.append(EventRelationship(
+                source_event_id=process_event.event_id,
+                target_event_id=connection.event_id,
+                relationship_type="CONNECTED_TO",
+                confidence_score=0.95 if same_artifact_starts else 0.90,
+                correlation_method="Procmon PID and Process-Lifetime Attribution",
+                supporting_identifiers=[
+                    f"PID:{connection.pid}",
+                    f"Operation:{operation}",
+                    f"EvidenceReference:{connection.evidence_reference}",
+                    *([f"Destination:{destination}"] if destination else [])
+                ],
+                evidence_sources=["process", "procmon"],
+                explanation=(
+                    f"Procmon {operation} evidence records PID {connection.pid} "
+                    f"('{connection.process_name}') connecting during its validated "
+                    f"process epoch, supported by process event {process_event.event_id}."
+                ),
+                relationship_category="Directly observed",
+                case_id=case_id
+            ))
+
+        # 2. Directly observed: Sysmon EID 3 bound via ProcessGuid or PID lifetime.
         for ep_net in sysmon_net:
             if not use_five_tuple_matching:
                 continue
@@ -180,7 +271,7 @@ class NetworkCorrelator:
                 case_id=case_id
             ))
 
-        # 2. Strongly supported: Sysmon EID 3 to Wireshark via exact 5-tuple + timestamp validation
+        # 3. Strongly supported: Sysmon EID 3 to Wireshark via exact five-tuple and time.
         for ep_net in sysmon_net:
             timestamp_window = _sysmon_timestamp_window(ep_net)
             if timestamp_window is None:
@@ -300,7 +391,7 @@ class NetworkCorrelator:
                         ))
                         pid_attribution_created = True
 
-        # 3. Packets without Sysmon 5-tuple corroboration are unattributed.
+        # 4. Packets without Sysmon five-tuple corroboration are unattributed.
         # Do not bind Wireshark frames to processes using timestamps alone.
         corroborated_wire = {r.target_event_id for r in relationships if r.relationship_type == "OBSERVED_IN"}
         for wire in wire_net:

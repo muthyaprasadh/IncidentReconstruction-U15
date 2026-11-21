@@ -7,6 +7,7 @@ BASELINE 3: All evidence sources with conventional rule-based correlation (proce
             Sysmon network, five-tuple), without graph connected-component reasoning.
 PROPOSED METHOD: Provenance-aware evidence graph over the same rule-based relationships.
 """
+from collections import deque
 from typing import List, Dict, Any, Set, Tuple, Optional
 from database.models import NormalizedEvent, EventRelationship
 from correlation.correlation_engine import CorrelationEngine
@@ -216,23 +217,22 @@ class BaselineRunner:
 
         seed_eids = {e.event_id for e in events if e.pid in suspect_pids}
 
-        # Method 4 does provenance-aware multi-hop reconstruction: it starts from
-        # suspect process seeds and retains nodes/edges that participate in a
-        # trusted causal path (at most seven hops), rather than expanding an
-        # entire relationship component like a conventional graph.
+        # Multi-source BFS is equivalent to checking every seed/target pair for
+        # shortest paths, but avoids repeating graph searches across large cases.
         incident_event_ids: Set[str] = set()
-        for seed in seed_eids:
-            incident_event_ids.add(seed)
-            if G.has_node(seed):
-                for target in G.nodes:
-                    if target == seed:
-                        continue
-                    try:
-                        path = nx.shortest_path(G, seed, target)
-                    except (nx.NetworkXNoPath, nx.NodeNotFound):
-                        continue
-                    if len(path) - 1 <= 7:
-                        incident_event_ids.update(path)
+        distance = {seed: 0 for seed in seed_eids if G.has_node(seed)}
+        frontier = deque(distance)
+        incident_event_ids.update(seed_eids)
+        while frontier:
+            current = frontier.popleft()
+            if distance[current] >= 7:
+                continue
+            for target in G.successors(current):
+                if target in distance:
+                    continue
+                distance[target] = distance[current] + 1
+                incident_event_ids.add(target)
+                frontier.append(target)
 
         rel_tuples: List[Tuple[str, str, str]] = []
         for u, v, data in G.edges(data=True):

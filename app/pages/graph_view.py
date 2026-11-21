@@ -20,8 +20,47 @@ def render_graph_view_page():
         st.warning("⚠️ Please select an active investigation case first.")
         return
 
-    events = db.get_events(case_id)
-    relationships = db.get_relationships(case_id)
+    with st.expander("Graph rendering scope", expanded=True):
+        scope_col1, scope_col2 = st.columns(2)
+        with scope_col1:
+            event_limit = st.slider(
+                "Maximum events to render",
+                min_value=100,
+                max_value=400,
+                value=250,
+                step=50,
+            )
+        with scope_col2:
+            event_order = st.radio(
+                "Sample selection",
+                ["Most correlated", "Most recent", "Earliest"],
+                horizontal=True,
+            )
+
+    total_event_count = db.get_event_count(case_id)
+    if event_order == "Most correlated":
+        events = db.get_most_correlated_events(case_id, limit=event_limit)
+        if not events:
+            events = db.get_events(case_id, limit=event_limit, newest_first=True)
+            events.reverse()
+            st.caption("No correlated events are stored; showing the most recent event sample.")
+    else:
+        events = db.get_events(
+            case_id,
+            limit=event_limit,
+            newest_first=(event_order == "Most recent"),
+        )
+        if event_order == "Most recent":
+            events.reverse()
+    relationships = db.get_relationships(
+        case_id,
+        event_ids=[event["event_id"] for event in events],
+    )
+
+    st.info(
+        f"Displaying {len(events):,} of {total_event_count:,} case events. "
+        "Only relationships with both endpoints in this sample are shown."
+    )
 
     if not events:
         st.info("No events or relationships to graph. Please ingest evidence and execute correlation first.")
@@ -58,26 +97,60 @@ def render_graph_view_page():
                 default=["process", "registry", "network", "file", "event"]
             )
         with f_col3:
-            cat_options = ["Directly observed", "Strongly supported", "Temporal association", "Inferred", "Unknown"]
+            cat_options = [
+                "Directly observed",
+                "Strongly supported",
+                "Temporal association",
+                "Unattributed",
+                "Inferred",
+                "Unknown",
+            ]
             sel_cats = st.multiselect("Allowed Relationship Categories", cat_options, default=cat_options)
 
         # Path finder
         st.markdown("**🔍 Causal Path Finder (Attack Chain Reconstruction)**")
-        all_node_ids = list(raw_graph.nodes())
+        node_query = st.text_input(
+            "Search node IDs or labels",
+            key=f"graph_node_search_{case_id}",
+        ).strip().lower()
+        matching_node_ids = []
+        if node_query:
+            matching_node_ids = [
+                node_id
+                for node_id, attributes in raw_graph.nodes(data=True)
+                if node_query in str(node_id).lower()
+                or node_query in str(attributes.get("label", "")).lower()
+            ][:500]
+            if not matching_node_ids:
+                st.caption("No graph nodes match that search.")
+        else:
+            st.caption("Search for a node to enable causal path selection.")
+
         p_col1, p_col2, p_col3 = st.columns([3, 3, 2])
         with p_col1:
-            src_node = st.selectbox("Source Entity (Root / Process)", options=[""] + all_node_ids, index=0)
+            src_node = st.selectbox(
+                "Source Entity (Root / Process)",
+                options=[""] + matching_node_ids,
+                index=0,
+            )
         with p_col2:
-            tgt_node = st.selectbox("Target Entity (Socket / Registry / Child)", options=[""] + all_node_ids, index=0)
+            tgt_node = st.selectbox(
+                "Target Entity (Socket / Registry / Child)",
+                options=[""] + matching_node_ids,
+                index=0,
+            )
         with p_col3:
             st.write("")
             st.write("")
             find_path_btn = st.button("Find Causal Paths")
 
         if find_path_btn and src_node and tgt_node:
-            paths = analyzer.find_causal_paths(src_node, tgt_node)
+            paths = analyzer.find_causal_paths(src_node, tgt_node, max_paths=100)
             if paths:
-                st.success(f"Found {len(paths)} directed causal path(s) between `{src_node}` and `{tgt_node}`:")
+                st.success(
+                    f"Returned up to {len(paths)} directed causal path(s) between "
+                    f"`{src_node}` and `{tgt_node}` (maximum 100)."
+                )
                 for p_idx, p in enumerate(paths, 1):
                     st.markdown(f"**Path #{p_idx}:** `{' ➔ '.join(p)}`")
             else:
