@@ -1,3 +1,4 @@
+
 import csv
 import hashlib
 import io
@@ -17,12 +18,14 @@ from graph.graph_analyzer import EvidenceGraphAnalyzer
 
 PAGE_SIZE = 100
 EXPORT_BATCH_SIZE = 1000
+
 SOURCE_OPTIONS = {
     "All Sources": None,
     "Process": "process",
     "Registry": "registry",
     "Network": "network",
 }
+
 SOURCE_WIDGET_KEY = "timeline_source_filter_v3"
 SOURCE_SELECTION_STATE_KEY = "timeline_source_selection"
 
@@ -56,16 +59,20 @@ def _generate_page_timeline(case_id, source, search, page):
         limit=PAGE_SIZE,
         offset=page * PAGE_SIZE,
     )
+
     if not events:
         return [], [], []
 
     event_ids = [event["event_id"] for event in events]
+
     relationships = db.get_relationships(
         case_id=case_id,
         event_ids=event_ids,
         include_external=True,
     )
+
     entries = TimelineGenerator(events, relationships).generate_timeline()
+
     return events, relationships, entries
 
 
@@ -74,9 +81,15 @@ def _generate_full_case_csv(case_id, source=None, search=None):
     writer = None
     offset = 0
     exported_count = 0
+
     fieldnames = [
-        "Timestamp (UTC)", "Source", "Event Type", "Process",
-        "Summary", "Related Links", "Evidence Reference",
+        "Timestamp (UTC)",
+        "Source",
+        "Event Type",
+        "Process",
+        "Summary",
+        "Related Links",
+        "Evidence Reference",
     ]
 
     while True:
@@ -87,15 +100,18 @@ def _generate_full_case_csv(case_id, source=None, search=None):
             limit=EXPORT_BATCH_SIZE,
             offset=offset,
         )
+
         if not events:
             break
 
         event_ids = [event["event_id"] for event in events]
+
         relationships = db.get_relationships(
             case_id=case_id,
             event_ids=event_ids,
             include_external=True,
         )
+
         entries = TimelineGenerator(events, relationships).generate_timeline()
         rows = _timeline_to_rows(entries)
 
@@ -104,6 +120,7 @@ def _generate_full_case_csv(case_id, source=None, search=None):
             writer.writeheader()
 
         writer.writerows(rows)
+
         exported_count += len(rows)
         offset += EXPORT_BATCH_SIZE
 
@@ -116,39 +133,60 @@ def _generate_full_case_csv(case_id, source=None, search=None):
 
 def _generate_full_narrative(case_id):
     events = db.get_events(case_id)
+
     if not events:
         return None
+
     relationships = db.get_relationships(case_id)
+
     entries = TimelineGenerator(events, relationships).generate_timeline()
-    return IncidentNarrativeGenerator(entries, relationships).generate_narrative()
+
+    return IncidentNarrativeGenerator(
+        entries,
+        relationships
+    ).generate_narrative()
 
 
 def _generate_process_tree(case_id):
     events = db.get_events(case_id)
+
     if not events:
         return None
+
     relationships = db.get_relationships(case_id)
+
     return create_process_tree_chart(events, relationships)
 
 
 def _generate_pdf(case_id, case_info):
     events = db.get_events(case_id)
+
     if not events:
         return None
 
     relationships = db.get_relationships(case_id)
-    timeline_entries = TimelineGenerator(events, relationships).generate_timeline()
+
+    timeline_entries = TimelineGenerator(
+        events,
+        relationships
+    ).generate_timeline()
+
     narrative_data = IncidentNarrativeGenerator(
-        timeline_entries, relationships
+        timeline_entries,
+        relationships
     ).generate_narrative()
 
     builder = EvidenceGraphBuilder(case_id)
+
     graph = builder.build_graph(events, relationships)
+
     graph_stats = EvidenceGraphAnalyzer(graph).get_summary_statistics()
 
     eval_data = []
+
     for run in db.get_evaluation_runs(case_id):
         metrics = run.get("metrics", {})
+
         eval_data.append({
             "method": run.get("method"),
             "precision": metrics.get("precision", 0),
@@ -168,14 +206,331 @@ def _generate_pdf(case_id, case_info):
     )
 
 
+def _process_option(event_id, event_by_id):
+    event = event_by_id[event_id]
+
+    process_name = event.get("process_name") or "Unknown Process"
+    pid = event.get("pid") or "Unknown"
+
+    return f"{process_name} (PID: {pid}) [{event_id}]"
+
+
+def _process_relationship_rows(relationships, event_by_id, endpoint_field):
+    rows = []
+
+    for relationship in relationships:
+        event_id = relationship.get(endpoint_field)
+        event = event_by_id.get(event_id)
+
+        if not event:
+            continue
+
+        confidence = relationship.get("confidence_score")
+
+        rows.append({
+            "Process": event.get("process_name") or "Unknown",
+            "PID": event.get("pid"),
+            "Event Type": event.get("event_type"),
+            "Event ID": event_id,
+            "Confidence": confidence,
+            "Method": relationship.get("correlation_method"),
+            "Explanation": relationship.get("explanation"),
+        })
+
+    return rows
+
+
+def _build_process_chain(selected_event_id, event_by_id, relationships, max_depth=5):
+    adjacency = {}
+    reverse_adjacency = {}
+
+    for relationship in relationships:
+        if relationship.get("relationship_type") != "SPAWNED":
+            continue
+
+        source_id = relationship.get("source_event_id")
+        target_id = relationship.get("target_event_id")
+
+        if source_id not in event_by_id or target_id not in event_by_id:
+            continue
+
+        adjacency.setdefault(source_id, []).append(relationship)
+        reverse_adjacency.setdefault(target_id, []).append(relationship)
+
+    chain_rows = []
+    traversed_edges = set()
+
+    def traverse(start_id, relationship_map, direction):
+        visited = {start_id}
+        queue = [(start_id, 0)]
+
+        while queue:
+            current_id, depth = queue.pop(0)
+
+            if depth >= max_depth:
+                continue
+
+            for relationship in relationship_map.get(current_id, []):
+                source_id = relationship.get("source_event_id")
+                target_id = relationship.get("target_event_id")
+                edge_key = (source_id, target_id)
+
+                if edge_key in traversed_edges:
+                    continue
+                traversed_edges.add(edge_key)
+
+                source_event = event_by_id[source_id]
+                target_event = event_by_id[target_id]
+                next_id = source_id if direction == "Parent" else target_id
+                confidence = relationship.get("confidence_score")
+
+                try:
+                    confidence_value = float(confidence)
+                except (TypeError, ValueError):
+                    confidence_value = None
+
+                if confidence_value is None:
+                    confidence_band = "Unavailable"
+                elif confidence_value >= 0.90:
+                    confidence_band = "High"
+                elif confidence_value >= 0.70:
+                    confidence_band = "Moderate"
+                else:
+                    confidence_band = "Low"
+
+                chain_rows.append({
+                    "Direction": direction,
+                    "Depth": depth + 1,
+                    "Parent Process": source_event.get("process_name") or "Unknown",
+                    "Parent PID": source_event.get("pid"),
+                    "Child Process": target_event.get("process_name") or "Unknown",
+                    "Child PID": target_event.get("pid"),
+                    "Confidence": confidence,
+                    "Confidence Band": confidence_band,
+                    "Method": relationship.get("correlation_method"),
+                    "Explanation": relationship.get("explanation"),
+                    "Source Event ID": source_id,
+                    "Target Event ID": target_id,
+                })
+
+                if next_id not in visited:
+                    visited.add(next_id)
+                    queue.append((next_id, depth + 1))
+
+    traverse(selected_event_id, reverse_adjacency, "Parent")
+    traverse(selected_event_id, adjacency, "Child")
+
+    return chain_rows
+
+
+def _render_process_investigation(process_events, relationships, case_id):
+    event_by_id = {
+        event["event_id"]: event
+        for event in process_events
+        if event.get("event_id")
+    }
+
+    spawn_relationships = [
+        relationship
+        for relationship in relationships
+        if relationship.get("relationship_type") == "SPAWNED"
+        and relationship.get("source_event_id") in event_by_id
+        and relationship.get("target_event_id") in event_by_id
+    ]
+
+    st.markdown("### Interactive Process Investigation")
+
+    process_ids = list(dict.fromkeys(
+        event_id
+        for relationship in spawn_relationships
+        for event_id in (
+            relationship["source_event_id"],
+            relationship["target_event_id"],
+        )
+    ))
+
+    if not process_ids:
+        st.info(
+            "No valid SPAWNED relationships are available "
+            "for individual process investigation."
+        )
+        return
+
+    selected_event_id = st.selectbox(
+        "Select a process to investigate",
+        options=process_ids,
+        format_func=lambda event_id: _process_option(
+            event_id,
+            event_by_id,
+        ),
+        key=f"selected_process_{case_id}",
+    )
+
+    selected_event = event_by_id[selected_event_id]
+
+    st.markdown("#### Process Details")
+
+    detail_col1, detail_col2, detail_col3 = st.columns(3)
+
+    detail_col1.metric(
+        "Process Name",
+        selected_event.get("process_name") or "Unknown",
+    )
+
+    detail_col2.metric(
+        "Process ID",
+        str(selected_event.get("pid") or "Unknown"),
+    )
+
+    detail_col3.metric(
+        "Event Type",
+        selected_event.get("event_type") or "Unknown",
+    )
+
+    st.write("**Event ID:**", selected_event_id)
+
+    st.write(
+        "**Timestamp:**",
+        selected_event.get("timestamp") or "Unavailable",
+    )
+
+    incoming = [
+        relationship
+        for relationship in spawn_relationships
+        if relationship["target_event_id"] == selected_event_id
+    ]
+
+    outgoing = [
+        relationship
+        for relationship in spawn_relationships
+        if relationship["source_event_id"] == selected_event_id
+    ]
+
+    parent_col, child_col = st.columns(2)
+
+    with parent_col:
+        st.markdown("#### Parent Evidence")
+
+        st.metric("Incoming Relationships", len(incoming))
+
+        parent_rows = _process_relationship_rows(
+            incoming,
+            event_by_id,
+            "source_event_id",
+        )
+
+        if parent_rows:
+            st.dataframe(
+                pd.DataFrame(parent_rows),
+                use_container_width=True,
+                hide_index=True,
+            )
+        else:
+            st.info("No incoming SPAWNED relationships recorded.")
+
+    with child_col:
+        st.markdown("#### Child Evidence")
+
+        st.metric("Outgoing Relationships", len(outgoing))
+
+        child_rows = _process_relationship_rows(
+            outgoing,
+            event_by_id,
+            "target_event_id",
+        )
+
+        if child_rows:
+            st.dataframe(
+                pd.DataFrame(child_rows),
+                use_container_width=True,
+                hide_index=True,
+            )
+        else:
+            st.info("No outgoing SPAWNED relationships recorded.")
+
+
+    st.markdown("#### Multi-Level Process Chain")
+    st.caption(
+        "Traverses recorded SPAWNED relationships up to five levels in each "
+        "direction. Confidence describes the recorded relationship score; it "
+        "does not determine whether a process is malicious."
+    )
+
+    chain_rows = _build_process_chain(
+        selected_event_id,
+        event_by_id,
+        spawn_relationships,
+        max_depth=5,
+    )
+
+    if chain_rows:
+        chain_df = pd.DataFrame(chain_rows)
+        chain_col1, chain_col2, chain_col3 = st.columns(3)
+        chain_col1.metric("Chain Relationships", len(chain_rows))
+        chain_col2.metric(
+            "Parent Links",
+            int((chain_df["Direction"] == "Parent").sum()),
+        )
+        chain_col3.metric(
+            "Child Links",
+            int((chain_df["Direction"] == "Child").sum()),
+        )
+
+        st.dataframe(
+            chain_df.drop(columns=["Explanation"]),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        st.markdown("##### Relationship Explanations")
+        for index, row in enumerate(chain_rows, start=1):
+            parent_label = (
+                f"{row['Parent Process']} (PID: {row['Parent PID']})"
+            )
+            child_label = (
+                f"{row['Child Process']} (PID: {row['Child PID']})"
+            )
+            title = (
+                f"{index}. {row['Direction']} · "
+                f"{parent_label} → {child_label}"
+            )
+
+            with st.expander(title, expanded=False):
+                st.write("**Depth:**", row["Depth"])
+                st.write("**Confidence:**", row["Confidence"])
+                st.write("**Confidence band:**", row["Confidence Band"])
+                st.write("**Correlation method:**", row["Method"] or "Unavailable")
+                st.write(
+                    "**Explanation:**",
+                    row["Explanation"] or "No explanation recorded.",
+                )
+                st.write("**Source event:**", row["Source Event ID"])
+                st.write("**Target event:**", row["Target Event ID"])
+
+        csv_bytes = chain_df.to_csv(index=False).encode("utf-8-sig")
+        st.download_button(
+            "Export Process Chain CSV",
+            data=csv_bytes,
+            file_name=f"process_chain_{case_id}_{selected_event_id}.csv",
+            mime="text/csv",
+            key=f"download_process_chain_{case_id}",
+        )
+    else:
+        st.info(
+            "No multi-level SPAWNED process chain was found for the selected event."
+        )
+
+
 def render_incident_timeline_page():
     st.markdown("## Automatically Reconstructed Incident Timeline")
+
     st.caption(
         "Chronological reconstruction of cross-artifact activities "
         "with empirical observations and provenance support."
     )
 
     case_id = st.session_state.get("current_case_id")
+
     if not case_id:
         st.warning("Please select an active investigation case first.")
         return
@@ -184,15 +539,19 @@ def render_incident_timeline_page():
         "case_id": case_id,
         "name": "Active Investigation",
     }
+
     st.markdown(f"**Investigation:** `{case_id}`")
 
     st.markdown("### Timeline Filters")
+
     filter_col1, filter_col2 = st.columns([1, 2])
+
     with filter_col1:
         if SOURCE_SELECTION_STATE_KEY not in st.session_state:
             st.session_state[SOURCE_SELECTION_STATE_KEY] = "All Sources"
 
         saved_source_label = st.session_state[SOURCE_SELECTION_STATE_KEY]
+
         if (
             not isinstance(saved_source_label, str)
             or saved_source_label not in SOURCE_OPTIONS
@@ -206,6 +565,7 @@ def render_incident_timeline_page():
 
         if SOURCE_WIDGET_KEY in st.session_state:
             widget_source_label = st.session_state[SOURCE_WIDGET_KEY]
+
             if (
                 not isinstance(widget_source_label, str)
                 or widget_source_label not in SOURCE_OPTIONS
@@ -224,14 +584,18 @@ def render_incident_timeline_page():
             key=SOURCE_WIDGET_KEY,
             on_change=_remember_timeline_source,
         )
+
         if not isinstance(source_label, str) or source_label not in SOURCE_OPTIONS:
             st.error(
                 f"Invalid evidence source selection: {source_label!r}. "
                 "Select a valid source."
             )
             return
+
         st.session_state[SOURCE_SELECTION_STATE_KEY] = source_label
+
         selected_source = SOURCE_OPTIONS[source_label]
+
         st.caption(
             f"Active source filter: **{source_label}** "
             f"(database value: `{selected_source or 'all'}`)"
@@ -245,6 +609,7 @@ def render_incident_timeline_page():
         ).strip()
 
     current_filter = (case_id, selected_source, search_query)
+
     if st.session_state.get("timeline_previous_filter_v3") != current_filter:
         st.session_state["timeline_page"] = 0
         st.session_state["timeline_previous_filter_v3"] = current_filter
@@ -258,52 +623,83 @@ def render_incident_timeline_page():
 
     with st.expander("Filter diagnostics", expanded=False):
         st.write("Selected dropdown value:", source_label)
-        st.write("Source passed to database:", repr(selected_source))
+
+        st.write(
+            "Source passed to database:",
+            repr(selected_source),
+        )
+
         st.write("Filtered event count:", total_events)
+
         st.write(
             "Unfiltered event count:",
             db.get_event_count(case_id=case_id),
         )
+
         st.write(
             "Direct count for selected source:",
-            db.get_event_count(case_id=case_id, source=selected_source),
+            db.get_event_count(
+                case_id=case_id,
+                source=selected_source,
+            ),
         )
 
     if total_events == 0:
-        st.info("No events match the selected filters. Try another source or search term.")
+        st.info(
+            "No events match the selected filters. "
+            "Try another source or search term."
+        )
         return
 
-    total_pages = max(1, (total_events + PAGE_SIZE - 1) // PAGE_SIZE)
+    total_pages = max(
+        1,
+        (total_events + PAGE_SIZE - 1) // PAGE_SIZE,
+    )
+
     current_page = min(
         max(st.session_state.get("timeline_page", 0), 0),
         total_pages - 1,
     )
+
     st.session_state["timeline_page"] = current_page
 
     metric_col1, metric_col2, metric_col3 = st.columns(3)
+
     metric_col1.metric("Matching Events", f"{total_events:,}")
     metric_col2.metric("Events Per Page", PAGE_SIZE)
     metric_col3.metric("Total Pages", f"{total_pages:,}")
 
     events, relationships, timeline_entries = _generate_page_timeline(
-        case_id, selected_source, search_query, current_page
+        case_id,
+        selected_source,
+        search_query,
+        current_page,
     )
+
     if not events:
         st.info("No events available on this page.")
         return
 
     st.markdown("### Timeline Navigation")
+
     nav_col1, nav_col2, nav_col3 = st.columns([1, 2, 1])
+
     with nav_col1:
-        if st.button("Previous", disabled=current_page == 0, use_container_width=True):
+        if st.button(
+            "Previous",
+            disabled=current_page == 0,
+            use_container_width=True,
+        ):
             st.session_state["timeline_page"] -= 1
             st.rerun()
+
     with nav_col2:
         st.markdown(
             f"<div style='text-align:center;padding:8px'>Page "
             f"<b>{current_page + 1}</b> of <b>{total_pages}</b></div>",
             unsafe_allow_html=True,
         )
+
     with nav_col3:
         if st.button(
             "Next",
@@ -314,12 +710,21 @@ def render_incident_timeline_page():
             st.rerun()
 
     st.markdown("### Chronological Incident Narrative")
+
     narrative_key = f"timeline_narrative_{case_id}"
-    if st.button("Generate Full Case Narrative", key="generate_full_narrative"):
-        with st.spinner("Reconstructing the full case narrative. Large cases may take some time..."):
+
+    if st.button(
+        "Generate Full Case Narrative",
+        key="generate_full_narrative",
+    ):
+        with st.spinner(
+            "Reconstructing the full case narrative. "
+            "Large cases may take some time..."
+        ):
             st.session_state[narrative_key] = _generate_full_narrative(case_id)
 
     narrative_data = st.session_state.get(narrative_key)
+
     if narrative_data:
         st.text_area(
             "Full Case Chronology",
@@ -327,21 +732,34 @@ def render_incident_timeline_page():
             height=350,
             disabled=True,
         )
+
         st.caption(narrative_data.get("forensic_disclaimer", ""))
+
         phases = narrative_data.get("phases_summary", {})
+
         phase_cols = st.columns(4)
+
         phase_labels = [
             ("Process Launches", "Process Execution"),
             ("File Actions", "File Activity"),
             ("Registry Modifications", "Registry Activity"),
             ("Network Sockets", "Network Activity"),
         ]
+
         for col, (label, key) in zip(phase_cols, phase_labels):
             col.metric(label, phases.get(key, 0))
+
         findings = narrative_data.get("correlated_findings", [])
+
         if findings:
             st.markdown("#### High-Confidence Correlated Findings")
-            st.dataframe(pd.DataFrame(findings), use_container_width=True, hide_index=True)
+
+            st.dataframe(
+                pd.DataFrame(findings),
+                use_container_width=True,
+                hide_index=True,
+            )
+
     else:
         st.info(
             "The full-case narrative has not been generated. "
@@ -349,44 +767,67 @@ def render_incident_timeline_page():
         )
 
     st.markdown("### Investigation Report & Forensic Exports")
+
     export_col1, export_col2 = st.columns(2)
 
     with export_col1:
         st.markdown("#### Full-Case CSV Export")
-        st.caption("Exports every event matching the current source and search filters.")
+
+        st.caption(
+            "Exports every event matching the current source and search filters."
+        )
+
         filter_signature = f"{selected_source or 'all'}|{search_query}"
+
         filter_hash = hashlib.sha256(
             filter_signature.encode("utf-8")
         ).hexdigest()[:16]
+
         csv_data_key = f"timeline_csv_{case_id}_{filter_hash}"
         csv_count_key = f"timeline_csv_count_{case_id}_{filter_hash}"
 
-        if st.button("Prepare Full-Case CSV", key="prepare_full_csv"):
-            with st.spinner("Generating full-case timeline CSV in batches..."):
+        if st.button(
+            "Prepare Full-Case CSV",
+            key="prepare_full_csv",
+        ):
+            with st.spinner(
+                "Generating full-case timeline CSV in batches..."
+            ):
                 csv_data, exported_count = _generate_full_case_csv(
-                    case_id, selected_source, search_query
+                    case_id,
+                    selected_source,
+                    search_query,
                 )
+
                 expected_count = db.get_event_count(
                     case_id=case_id,
                     source=selected_source,
                     search=search_query,
                 )
+
                 if exported_count != expected_count:
                     st.error(
                         f"CSV validation failed: exported {exported_count:,} "
                         f"records, but {expected_count:,} events match the filters. "
                         "The CSV has not been made available for download."
                     )
+
                     st.session_state.pop(csv_data_key, None)
                     st.session_state.pop(csv_count_key, None)
+
                 else:
                     st.session_state[csv_data_key] = csv_data
                     st.session_state[csv_count_key] = exported_count
 
         csv_data = st.session_state.get(csv_data_key)
+
         if csv_data:
             exported_count = st.session_state.get(csv_count_key, 0)
-            st.success(f"Prepared and validated {exported_count:,} timeline records.")
+
+            st.success(
+                f"Prepared and validated {exported_count:,} timeline records."
+            )
+
             st.download_button(
                 "Download Full-Case Timeline CSV",
                 data=csv_data,
@@ -397,7 +838,11 @@ def render_incident_timeline_page():
 
     with export_col2:
         st.markdown("#### PDF Investigation Report")
-        st.caption("Generates the existing executive investigation report.")
+
+        st.caption(
+            "Generates the existing executive investigation report."
+        )
+
         if st.button(
             "Generate PDF Investigation Report",
             type="primary",
@@ -406,17 +851,29 @@ def render_incident_timeline_page():
             with st.spinner("Generating the PDF investigation report..."):
                 try:
                     pdf_path = _generate_pdf(case_id, case_info)
+
                     if pdf_path:
-                        st.session_state[f"generated_pdf_path_{case_id}"] = str(pdf_path)
+                        st.session_state[
+                            f"generated_pdf_path_{case_id}"
+                        ] = str(pdf_path)
+
                         st.success(f"PDF generated: {pdf_path.name}")
+
                     else:
-                        st.warning("No events available for PDF generation.")
+                        st.warning(
+                            "No events available for PDF generation."
+                        )
+
                 except Exception as exc:
                     st.error(f"PDF generation failed: {exc}")
 
-        pdf_path_value = st.session_state.get(f"generated_pdf_path_{case_id}")
+        pdf_path_value = st.session_state.get(
+            f"generated_pdf_path_{case_id}"
+        )
+
         if pdf_path_value:
             pdf_path = Path(pdf_path_value)
+
             if pdf_path.exists():
                 with open(pdf_path, "rb") as pdf_file:
                     st.download_button(
@@ -428,27 +885,74 @@ def render_incident_timeline_page():
                     )
 
     st.markdown("### Timeline Views")
+
     selected_view = st.radio(
         "Select View",
-        ["Interactive Timeline", "Process Tree", "Tabular Event Data"],
+        [
+            "Interactive Timeline",
+            "Process Tree",
+            "Tabular Event Data",
+        ],
         horizontal=True,
         key="timeline_selected_view",
     )
 
     if selected_view == "Interactive Timeline":
-        st.caption(f"Displaying {len(timeline_entries)} events from the current page.")
+        st.caption(
+            f"Displaying {len(timeline_entries)} events from the current page."
+        )
+
         render_timeline_view(timeline_entries)
+
     elif selected_view == "Process Tree":
         st.warning(
-            "The process tree uses the full case event and relationship data. "
-            "Large cases may take some time to process."
+            "The process evidence graph uses full-case event and relationship "
+            "data. Large cases may take some time to process."
         )
-        if st.button("Generate Full Case Process Tree", key="generate_process_tree"):
-            with st.spinner("Building the complete process hierarchy..."):
-                st.session_state[f"process_tree_{case_id}"] = _generate_process_tree(case_id)
-        tree_fig = st.session_state.get(f"process_tree_{case_id}")
+
+        graph_data_key = f"process_graph_data_{case_id}"
+        tree_fig_key = f"process_tree_{case_id}"
+
+        if st.button(
+            "Generate Full Case Process Tree",
+            key="generate_process_tree",
+        ):
+            with st.spinner(
+                "Building the complete process evidence graph..."
+            ):
+                process_events = db.get_events(
+                    case_id=case_id,
+                    source="process",
+                )
+
+                process_relationships = db.get_relationships(case_id)
+
+                st.session_state[graph_data_key] = {
+                    "events": process_events,
+                    "relationships": process_relationships,
+                }
+
+                st.session_state[tree_fig_key] = create_process_tree_chart(
+                    process_events,
+                    process_relationships,
+                )
+
+        tree_fig = st.session_state.get(tree_fig_key)
+        graph_data = st.session_state.get(graph_data_key)
+
         if tree_fig is not None:
-            st.plotly_chart(tree_fig, use_container_width=True)
+            st.plotly_chart(
+                tree_fig,
+                use_container_width=True,
+            )
+
+        if graph_data:
+            _render_process_investigation(
+                graph_data["events"],
+                graph_data["relationships"],
+                case_id,
+            )
+
     elif selected_view == "Tabular Event Data":
         st.dataframe(
             pd.DataFrame(_timeline_to_rows(timeline_entries)),
@@ -456,7 +960,8 @@ def render_incident_timeline_page():
             height=500,
             hide_index=True,
         )
+
         st.caption(
-            "The table displays only the current page. Use the full-case CSV export "
-            "to export all matching events."
+            "The table displays only the current page. Use the full-case CSV "
+            "export to export all matching events."
         )
