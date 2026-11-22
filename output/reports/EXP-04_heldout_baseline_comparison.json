@@ -1,0 +1,372 @@
+{
+  "experiment": "EXP-04 Held-Out Baseline Comparison",
+  "project": "U-15 Cross-Artifact Incident Reconstruction",
+  "evaluated_at": "2026-11-22T10:10:19.001606+00:00",
+  "dataset_type": "Synthetic held-out validation",
+  "cases": [
+    "CASE-20-20_HELD_OUT_MIXED",
+    "CASE-21-21_HELD_OUT_PID_REUSE",
+    "CASE-22-22_HELD_OUT_MISSING_REG_NOISE"
+  ],
+  "temporal_window_seconds": 5.0,
+  "evaluation_scope": "Exact expected event-relationship matches. Predictions are scoped to endpoints appearing in independently documented expected relationships.",
+  "limitations": [
+    "The held-out cases are synthetic, not real-world captures.",
+    "Unreviewed relationships are not classified as false positives.",
+    "Precision, F1 and false-positive rate are not calculated.",
+    "Event detection metrics are not calculated.",
+    "Baseline 3 and Proposed share the underlying correlation engine; their comparison measures graph-based expansion."
+  ],
+  "case_results": [
+    {
+      "case_id": "CASE-20-20_HELD_OUT_MIXED",
+      "event_count": 19,
+      "labeled_event_count": 8,
+      "expected_relationship_count": 6,
+      "methods": [
+        {
+          "method": "Baseline 1: Process Only",
+          "runtime_seconds": 2.8e-05,
+          "total_predicted_relationships": 1,
+          "scoped_predicted_relationships": 0,
+          "expected_relationships": 6,
+          "matched_relationships": 0,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ],
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-REG-procmon_events-R00008-a915e9",
+              "MODIFIED"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": [],
+          "expected_link_recall": 0.0
+        },
+        {
+          "method": "Baseline 2: Process + Registry",
+          "runtime_seconds": 0.00204,
+          "total_predicted_relationships": 5,
+          "scoped_predicted_relationships": 3,
+          "expected_relationships": 6,
+          "matched_relationships": 2,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ]
+          ],
+          "expected_link_recall": 0.333333
+        },
+        {
+          "method": "Baseline 3: All Sources Rule-Based",
+          "runtime_seconds": 0.003531,
+          "total_predicted_relationships": 9,
+          "scoped_predicted_relationships": 7,
+          "expected_relationships": 6,
+          "matched_relationships": 6,
+          "missing_relationships": [],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ]
+          ],
+          "expected_link_recall": 1.0
+        },
+        {
+          "method": "Proposed: Provenance Graph",
+          "runtime_seconds": 0.002842,
+          "total_predicted_relationships": 9,
+          "scoped_predicted_relationships": 7,
+          "expected_relationships": 6,
+          "matched_relationships": 6,
+          "missing_relationships": [],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ]
+          ],
+          "expected_link_recall": 1.0
+        }
+      ]
+    },
+    {
+      "case_id": "CASE-21-21_HELD_OUT_PID_REUSE",
+      "event_count": 7,
+      "labeled_event_count": 3,
+      "expected_relationship_count": 2,
+      "methods": [
+        {
+          "method": "Baseline 1: Process Only",
+          "runtime_seconds": 2e-05,
+          "total_predicted_relationships": 0,
+          "scoped_predicted_relationships": 0,
+          "expected_relationships": 2,
+          "matched_relationships": 0,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "EVT-NET-wireshark_packets-P00001-c89377",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00002-7c4a21",
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": [],
+          "expected_link_recall": 0.0
+        },
+        {
+          "method": "Baseline 2: Process + Registry",
+          "runtime_seconds": 0.00063,
+          "total_predicted_relationships": 0,
+          "scoped_predicted_relationships": 0,
+          "expected_relationships": 2,
+          "matched_relationships": 0,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "EVT-NET-wireshark_packets-P00001-c89377",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00002-7c4a21",
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": [],
+          "expected_link_recall": 0.0
+        },
+        {
+          "method": "Baseline 3: All Sources Rule-Based",
+          "runtime_seconds": 0.000931,
+          "total_predicted_relationships": 2,
+          "scoped_predicted_relationships": 2,
+          "expected_relationships": 2,
+          "matched_relationships": 2,
+          "missing_relationships": [],
+          "unreviewed_relationships": [],
+          "expected_link_recall": 1.0
+        },
+        {
+          "method": "Proposed: Provenance Graph",
+          "runtime_seconds": 0.001229,
+          "total_predicted_relationships": 2,
+          "scoped_predicted_relationships": 2,
+          "expected_relationships": 2,
+          "matched_relationships": 2,
+          "missing_relationships": [],
+          "unreviewed_relationships": [],
+          "expected_link_recall": 1.0
+        }
+      ]
+    },
+    {
+      "case_id": "CASE-22-22_HELD_OUT_MISSING_REG_NOISE",
+      "event_count": 24,
+      "labeled_event_count": 7,
+      "expected_relationship_count": 5,
+      "methods": [
+        {
+          "method": "Baseline 1: Process Only",
+          "runtime_seconds": 2e-05,
+          "total_predicted_relationships": 1,
+          "scoped_predicted_relationships": 0,
+          "expected_relationships": 5,
+          "matched_relationships": 0,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": [],
+          "expected_link_recall": 0.0
+        },
+        {
+          "method": "Baseline 2: Process + Registry",
+          "runtime_seconds": 0.001677,
+          "total_predicted_relationships": 4,
+          "scoped_predicted_relationships": 2,
+          "expected_relationships": 5,
+          "matched_relationships": 1,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ]
+          ],
+          "expected_link_recall": 0.2
+        },
+        {
+          "method": "Baseline 3: All Sources Rule-Based",
+          "runtime_seconds": 0.002947,
+          "total_predicted_relationships": 8,
+          "scoped_predicted_relationships": 6,
+          "expected_relationships": 5,
+          "matched_relationships": 5,
+          "missing_relationships": [],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ]
+          ],
+          "expected_link_recall": 1.0
+        },
+        {
+          "method": "Proposed: Provenance Graph",
+          "runtime_seconds": 0.00292,
+          "total_predicted_relationships": 8,
+          "scoped_predicted_relationships": 6,
+          "expected_relationships": 5,
+          "matched_relationships": 5,
+          "missing_relationships": [],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ]
+          ],
+          "expected_link_recall": 1.0
+        }
+      ]
+    }
+  ],
+  "method_summaries": [
+    {
+      "method": "Baseline 1: Process Only",
+      "total_expected_relationships": 13,
+      "total_matched_relationships": 0,
+      "micro_expected_link_recall": 0.0,
+      "macro_expected_link_recall": 0.0,
+      "mean_runtime_seconds": 2.3e-05
+    },
+    {
+      "method": "Baseline 2: Process + Registry",
+      "total_expected_relationships": 13,
+      "total_matched_relationships": 3,
+      "micro_expected_link_recall": 0.230769,
+      "macro_expected_link_recall": 0.177778,
+      "mean_runtime_seconds": 0.001449
+    },
+    {
+      "method": "Baseline 3: All Sources Rule-Based",
+      "total_expected_relationships": 13,
+      "total_matched_relationships": 13,
+      "micro_expected_link_recall": 1.0,
+      "macro_expected_link_recall": 1.0,
+      "mean_runtime_seconds": 0.00247
+    },
+    {
+      "method": "Proposed: Provenance Graph",
+      "total_expected_relationships": 13,
+      "total_matched_relationships": 13,
+      "micro_expected_link_recall": 1.0,
+      "macro_expected_link_recall": 1.0,
+      "mean_runtime_seconds": 0.00233
+    }
+  ],
+  "database_writes": false,
+  "ground_truth_modifications": false,
+  "evidence_ingestion": false
+}

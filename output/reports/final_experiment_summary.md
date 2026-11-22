@@ -128,3 +128,31 @@ The evaluated results support the use of cross-artifact graph correlation to imp
 The proposed method achieved higher mean F1-score and event coverage than the rule-based baseline. However, the false-positive-rate trade-off, limited held-out sample size and restricted real-world validation scope must remain explicit.
 
 Further evaluation using independently collected enterprise evidence, larger held-out datasets and more exhaustive ground-truth annotations is required before making broader generalization claims.
+
+---
+
+## 12. EXP-08: Real Evidence Timestamp Consistency and Cross-Artifact Validation
+
+**Evidence case:** EXP-03-REPEAT-REAL
+
+**Status:** Completed — timestamp consistency investigation.
+
+### Objective
+Investigate timestamp differences between original Sysmon network events and Wireshark packet captures using five-tuple matching.
+
+### Results
+- Inspected 7 original Sysmon Event ID 3 records.
+- All 7 records had corresponding five-tuple matches in the PCAPNG.
+- SystemTime was closer to the nearest matching packet in 6 of 7 comparisons.
+- UtcTime was closer in 1 comparison.
+- Identified repeated network flows that prevent definitive individual packet-to-event attribution.
+- Confirmed PCAPNG nanosecond timestamp resolution.
+- No explicit PCAPNG timestamp-offset option was recorded.
+
+### Decision
+Retain Sysmon UtcTime as the primary event timestamp. Preserve Windows SystemTime, timestamp discrepancies and uncertainty metadata independently. Do not automatically shift timestamps or regenerate existing relationships.
+
+### Limitations
+The experiment establishes network-flow consistency, not independently verified incident attribution accuracy. Nanosecond timestamp resolution does not establish clock synchronization accuracy.
+
+**Full report:** `EXP-08_real_evidence_timestamp_validation.md`

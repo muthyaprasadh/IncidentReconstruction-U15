@@ -31,107 +31,217 @@ def save_and_ingest_file(
     source_type: str,
     capture_timezone: str = "Asia/Kolkata"
 ) -> dict:
+    """Preserve the uploaded artifact and atomically commit parsed events and status."""
 
-    """Saves raw forensic file, computes its hash, and invokes the appropriate parser."""
+    if source_type not in {"process", "sysmon", "registry", "network"}:
+        raise ValueError(f"Unsupported evidence source type: {source_type}")
+
+    bytes_data = uploaded_file.getvalue()
+    sha256 = compute_sha256(bytes_data)
+    file_size = len(bytes_data)
+
+    existing_files = db.get_evidence_files(case_id)
+    for existing in existing_files:
+        if existing.get("file_hash") == sha256:
+            raise ValueError(
+                f"Duplicate evidence detected. Existing record: "
+                f"{existing.get('id')}, file: {existing.get('file_path')}"
+            )
 
     dest_dir = RAW_DATA_DIR / case_id
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    dest_path = dest_dir / uploaded_file.name
+    safe_name = str(uploaded_file.name).replace("\\", "/").split("/")[-1]
+    original_name = Path(safe_name)
+    if not original_name.name or original_name.name in {".", ".."}:
+        raise ValueError("Uploaded evidence has an invalid filename.")
 
-    bytes_data = uploaded_file.getvalue()
+    dest_path = dest_dir / original_name.name
+    if dest_path.exists():
+        dest_path = dest_dir / (
+            f"{original_name.stem}__{sha256[:12]}{original_name.suffix}"
+        )
 
-    with open(dest_path, "wb") as f:
-        f.write(bytes_data)
-
-    sha256 = compute_sha256(bytes_data)
-    file_size = len(bytes_data)
+    counter = 1
+    while True:
+        try:
+            with open(dest_path, "xb") as output_file:
+                output_file.write(bytes_data)
+            break
+        except FileExistsError:
+            dest_path = dest_dir / (
+                f"{original_name.stem}__{sha256[:12]}_{counter}"
+                f"{original_name.suffix}"
+            )
+            counter += 1
 
     ev_record = EvidenceFile(
         case_id=case_id,
         source_type=source_type,
-        file_name=uploaded_file.name,
+        file_name=original_name.name,
         file_path=str(dest_path),
         file_size=file_size,
         file_hash=sha256,
         status="Ingested"
     )
 
-    file_id = db.add_evidence_file(ev_record)
+    try:
+        file_id = db.add_evidence_file(ev_record)
+    except Exception as exc:
+        db.logger.exception(
+            "Could not register preserved evidence for case %s: %s",
+            case_id,
+            dest_path
+        )
+        raise RuntimeError(
+            f"Raw evidence was preserved at {dest_path}, "
+            f"but its evidence-file record could not be created: {exc}"
+        ) from exc
 
     parsed_events = []
     errors = []
     warnings = []
 
-    case_row = db.get_case_by_id(case_id) or {}
-    base_date = case_row.get("collection_date") or None
+    try:
+        case_row = db.get_case_by_id(case_id) or {}
+        base_date = case_row.get("collection_date") or None
 
-    if source_type == "process":
+        if source_type == "process":
+            parser = ProcmonParser(case_id=case_id)
+            parsed_events = parser.parse_file(
+                str(dest_path),
+                base_date=base_date,
+                timezone_name=capture_timezone
+            )
+        elif source_type == "sysmon":
+            parser = SysmonParser(case_id=case_id)
+            parsed_events = parser.parse_file(
+                str(dest_path),
+                base_date=base_date,
+                timezone_name="UTC"
+            )
+        elif source_type == "registry":
+            parser = RegistryParser(case_id=case_id)
+            parsed_events = parser.parse_file(str(dest_path))
+        else:
+            parser = NetworkParser(case_id=case_id)
+            parsed_events = parser.parse_file(str(dest_path))
 
-        parser = ProcmonParser(case_id=case_id)
+        errors = list(parser.errors or [])
+        warnings = list(parser.warnings or [])
+        status = "Parsed" if not errors else "Parsed with Errors"
+        error_text = "; ".join(errors)
 
-        parsed_events = parser.parse_file(
-            str(dest_path),
-            base_date=base_date,
-            timezone_name=capture_timezone
+        inserted_count = db.commit_evidence_ingestion(
+            file_id=file_id,
+            case_id=case_id,
+            events=parsed_events,
+            status=status,
+            errors=error_text
         )
 
-        errors = parser.errors
-        warnings = parser.warnings
+        if inserted_count != len(parsed_events):
+            raise RuntimeError(
+                f"Insertion count mismatch: expected {len(parsed_events)}, "
+                f"committed {inserted_count}."
+            )
 
-    elif source_type == "sysmon":
+    except Exception as exc:
+        failure_message = f"{type(exc).__name__}: {exc}"
+        try:
+            db.update_evidence_file_stats(
+                file_id,
+                record_count=0,
+                status="Ingestion Failed",
+                errors=failure_message
+            )
+        except Exception:
+            db.logger.exception(
+                "Could not update failed evidence status for file ID %s",
+                file_id
+            )
 
-        parser = SysmonParser(case_id=case_id)
-
-        parsed_events = parser.parse_file(
-            str(dest_path),
-            base_date=base_date,
-            timezone_name="UTC"
+        db.logger.exception(
+            "Evidence ingestion failed for case %s, file ID %s",
+            case_id,
+            file_id
         )
 
-        errors = parser.errors
-        warnings = parser.warnings
-
-    elif source_type == "registry":
-
-        parser = RegistryParser(case_id=case_id)
-
-        parsed_events = parser.parse_file(str(dest_path))
-
-        errors = parser.errors
-        warnings = parser.warnings
-
-    elif source_type == "network":
-
-        parser = NetworkParser(case_id=case_id)
-
-        parsed_events = parser.parse_file(str(dest_path))
-
-        errors = parser.errors
-        warnings = parser.warnings
-
-    if parsed_events:
-        db.insert_events_batch(parsed_events)
-
-    status = "Parsed" if not errors else "Parsed with Errors"
-
-    err_text = "; ".join(errors) if errors else ""
-
-    db.update_evidence_file_stats(
-        file_id,
-        record_count=len(parsed_events),
-        status=status,
-        errors=err_text
-    )
+        raise RuntimeError(
+            f"Ingestion failed for {original_name.name}. "
+            f"Raw evidence preserved at {dest_path}. "
+            f"Reason: {failure_message}"
+        ) from exc
 
     return {
-        "file_name": uploaded_file.name,
+        "file_name": original_name.name,
+        "file_path": str(dest_path),
         "file_size": file_size,
         "hash": sha256,
-        "events_count": len(parsed_events),
+        "events_count": inserted_count,
         "errors": errors,
         "warnings": warnings
     }
+
+
+def process_upload_batch(files, case_id, source_type, capture_timezone=None):
+    progress_bar = st.progress(0)
+    successful = 0
+    failed = 0
+
+    for index, uploaded_file in enumerate(files):
+        try:
+            if source_type == "process":
+                result = save_and_ingest_file(
+                    uploaded_file,
+                    case_id,
+                    source_type,
+                    capture_timezone=capture_timezone
+                )
+            else:
+                result = save_and_ingest_file(
+                    uploaded_file,
+                    case_id,
+                    source_type
+                )
+
+            st.success(
+                f"Ingested `{result['file_name']}`: "
+                f"{result['events_count']} events "
+                f"(SHA-256: `{result['hash'][:12]}...`)"
+            )
+
+            if result["warnings"]:
+                st.warning(
+                    f"{len(result['warnings'])} warnings during parsing."
+                )
+
+            if result["errors"]:
+                st.error(
+                    f"Parser errors: {', '.join(result['errors'])}"
+                )
+
+            successful += 1
+
+        except Exception as exc:
+            failed += 1
+            st.error(
+                f"Failed to ingest `{uploaded_file.name}`: {exc}"
+            )
+            db.logger.exception(
+                "Upload handler failed for case %s, source %s, file %s",
+                case_id,
+                source_type,
+                uploaded_file.name
+            )
+
+        finally:
+            progress_bar.progress((index + 1) / len(files))
+
+    st.info(
+        f"Upload batch completed: {successful} successful, "
+        f"{failed} failed."
+    )
 
 
 def render_evidence_upload_page():
@@ -428,38 +538,9 @@ def render_evidence_upload_page():
                 key="parse_proc_btn"
             ):
 
-                progress_bar = st.progress(0)
-
-                for i, pf in enumerate(proc_files):
-
-                    res = save_and_ingest_file(
-                        pf,
-                        case_id,
-                        "process",
-                        capture_timezone=capture_timezone
-                    )
-
-                    st.success(
-                        f"Ingested `{res['file_name']}`: "
-                        f"{res['events_count']} events "
-                        f"(SHA-256: `{res['hash'][:12]}...`)"
-                    )
-
-                    if res["warnings"]:
-                        st.warning(
-                            f"{len(res['warnings'])} warnings during parsing."
-                        )
-
-                    if res["errors"]:
-                        st.error(
-                            f"Errors: {', '.join(res['errors'])}"
-                        )
-
-                    progress_bar.progress(
-                        (i + 1) / len(proc_files)
-                    )
-
-                st.rerun()
+                process_upload_batch(
+                    proc_files, case_id, "process", capture_timezone
+                )
 
     # --------------------------------------------------
     # SYSMON EVIDENCE
@@ -491,37 +572,7 @@ def render_evidence_upload_page():
                 key="parse_sysmon_btn"
             ):
 
-                progress_bar = st.progress(0)
-
-                for i, sf in enumerate(sysmon_files):
-
-                    res = save_and_ingest_file(
-                        sf,
-                        case_id,
-                        "sysmon"
-                    )
-
-                    st.success(
-                        f"Ingested `{res['file_name']}`: "
-                        f"{res['events_count']} events "
-                        f"(SHA-256: `{res['hash'][:12]}...`)"
-                    )
-
-                    if res["warnings"]:
-                        st.warning(
-                            f"{len(res['warnings'])} warnings during parsing."
-                        )
-
-                    if res["errors"]:
-                        st.error(
-                            f"Errors: {', '.join(res['errors'])}"
-                        )
-
-                    progress_bar.progress(
-                        (i + 1) / len(sysmon_files)
-                    )
-
-                st.rerun()
+                process_upload_batch(sysmon_files, case_id, "sysmon")
 
     # --------------------------------------------------
     # REGISTRY EVIDENCE
@@ -549,37 +600,7 @@ def render_evidence_upload_page():
                 key="parse_reg_btn"
             ):
 
-                progress_bar = st.progress(0)
-
-                for i, rf in enumerate(reg_files):
-
-                    res = save_and_ingest_file(
-                        rf,
-                        case_id,
-                        "registry"
-                    )
-
-                    st.success(
-                        f"Ingested `{res['file_name']}`: "
-                        f"{res['events_count']} events "
-                        f"(SHA-256: `{res['hash'][:12]}...`)"
-                    )
-
-                    if res["warnings"]:
-                        st.warning(
-                            f"{len(res['warnings'])} warnings during parsing."
-                        )
-
-                    if res["errors"]:
-                        st.error(
-                            f"Errors: {', '.join(res['errors'])}"
-                        )
-
-                    progress_bar.progress(
-                        (i + 1) / len(reg_files)
-                    )
-
-                st.rerun()
+                process_upload_batch(reg_files, case_id, "registry")
 
     # --------------------------------------------------
     # NETWORK EVIDENCE
@@ -609,37 +630,7 @@ def render_evidence_upload_page():
                 key="parse_net_btn"
             ):
 
-                progress_bar = st.progress(0)
-
-                for i, nf in enumerate(net_files):
-
-                    res = save_and_ingest_file(
-                        nf,
-                        case_id,
-                        "network"
-                    )
-
-                    st.success(
-                        f"Ingested `{res['file_name']}`: "
-                        f"{res['events_count']} packets/sockets "
-                        f"(SHA-256: `{res['hash'][:12]}...`)"
-                    )
-
-                    if res["warnings"]:
-                        st.warning(
-                            f"{len(res['warnings'])} warnings during parsing."
-                        )
-
-                    if res["errors"]:
-                        st.error(
-                            f"Errors: {', '.join(res['errors'])}"
-                        )
-
-                    progress_bar.progress(
-                        (i + 1) / len(net_files)
-                    )
-
-                st.rerun()
+                process_upload_batch(net_files, case_id, "network")
 
     # --------------------------------------------------
     # INGESTED FILES

@@ -1,0 +1,81 @@
+{
+  "experiment": "U-15 Held-out Synthetic Validation",
+  "database": "C:\\U15-Forensics-Backup\\forensics_runtime_test.db",
+  "timestamp_utc": "2026-11-22T09:47:59.025063+00:00",
+  "scope": "Synthetic held-out cases; positive expected-link coverage only",
+  "cases": [
+    {
+      "case_id": "CASE-20-20_HELD_OUT_MIXED",
+      "events": 19,
+      "expected_relationships": 6,
+      "predicted_relationships": 6,
+      "matched_expected_relationships": 4,
+      "missing_expected_relationships": [
+        [
+          "EVT-PROC-procmon_events-R00006-301e18",
+          "EVT-PROC-procmon_events-R00009-439fad",
+          "SPAWNED"
+        ],
+        [
+          "EVT-PROC-procmon_events-R00006-301e18",
+          "EVT-REG-procmon_events-R00008-a915e9",
+          "MODIFIED"
+        ]
+      ],
+      "unexpected_unreviewed_relationships": [
+        [
+          "EVT-PROC-sysmon_events-R00001-bc2d92",
+          "EVT-PROC-sysmon_events-R00003-ea8b0f",
+          "SPAWNED"
+        ],
+        [
+          "EVT-PROC-sysmon_events-R00001-bc2d92",
+          "EVT-REG-procmon_events-R00008-a915e9",
+          "MODIFIED"
+        ]
+      ],
+      "expected_link_recall": 0.6667,
+      "ground_truth_records": 10,
+      "persisted_relationships": 6,
+      "interpretation": "Expected-link recall only. Unexpected relationships are unreviewed, not confirmed false positives."
+    },
+    {
+      "case_id": "CASE-21-21_HELD_OUT_PID_REUSE",
+      "events": 7,
+      "expected_relationships": 2,
+      "predicted_relationships": 2,
+      "matched_expected_relationships": 2,
+      "missing_expected_relationships": [],
+      "unexpected_unreviewed_relationships": [],
+      "expected_link_recall": 1.0,
+      "ground_truth_records": 4,
+      "persisted_relationships": 2,
+      "interpretation": "Expected-link recall only. Unexpected relationships are unreviewed, not confirmed false positives."
+    },
+    {
+      "case_id": "CASE-22-22_HELD_OUT_MISSING_REG_NOISE",
+      "events": 24,
+      "expected_relationships": 5,
+      "predicted_relationships": 5,
+      "matched_expected_relationships": 4,
+      "missing_expected_relationships": [
+        [
+          "EVT-PROC-procmon_events-R00006-301e18",
+          "EVT-PROC-procmon_events-R00008-439fad",
+          "SPAWNED"
+        ]
+      ],
+      "unexpected_unreviewed_relationships": [
+        [
+          "EVT-PROC-sysmon_events-R00001-bc2d92",
+          "EVT-PROC-sysmon_events-R00003-ea8b0f",
+          "SPAWNED"
+        ]
+      ],
+      "expected_link_recall": 0.8,
+      "ground_truth_records": 9,
+      "persisted_relationships": 5,
+      "interpretation": "Expected-link recall only. Unexpected relationships are unreviewed, not confirmed false positives."
+    }
+  ]
+}

@@ -76,11 +76,6 @@ class ProcessEpoch:
 
 
 class ProcessLifetimeTracker:
-    """
-    Maintains validated temporal epochs for Windows PIDs to eliminate
-    false-positive cross-artifact attribution caused by PID reuse.
-    """
-
     def __init__(
         self,
         use_process_guid: bool = True,
@@ -91,12 +86,6 @@ class ProcessLifetimeTracker:
         self.use_lifetime_validation = use_lifetime_validation
 
     def register_events(self, events: List[NormalizedEvent]):
-        """
-        Processes events strictly chronologically to reconstruct PID lifetimes.
-        ONLY process-source events can establish process start or exit boundaries.
-        Registry and network events must NEVER establish process start epochs.
-        """
-
         proc_events = []
 
         for e in events:
@@ -212,10 +201,6 @@ class ProcessLifetimeTracker:
         timestamp_str: Optional[str],
         process_guid: str = "",
     ) -> bool:
-        """
-        Verifies whether the specified PID was demonstrably alive and
-        associated with process_name at the target timestamp.
-        """
 
         if not self.use_lifetime_validation:
             return pid is not None
@@ -293,12 +278,6 @@ class ProcessCorrelator:
         tracker: ProcessLifetimeTracker,
         window_seconds: float = 30.0
     ) -> List[EventRelationship]:
-        """
-        Identifies SPAWNED parent-child relationships using PID/PPID
-        and process lifetime validation.
-
-        Parent-child relationships require actual process creation events.
-        """
 
         relationships: List[EventRelationship] = []
 
@@ -309,7 +288,7 @@ class ProcessCorrelator:
 
         child_candidates = [
             e for e in proc_events
-            if e.event_type.upper() == "PROCESS_START"
+            if e.event_type.upper() in {"PROCESS_START", "PROCESS_CREATE"}
             and e.ppid is not None
         ]
 
@@ -330,53 +309,87 @@ class ProcessCorrelator:
                 continue
 
             parent_candidates = by_pid[parent_pid]
-
             parent_evidence: Dict[str, NormalizedEvent] = {}
-            matching_creates = []
-            for candidate in parent_candidates:
-                if candidate.event_type.upper() != "PROCESS_CREATE":
-                    continue
-                try:
-                    created_pid = int((candidate.metadata or {}).get("created_pid"))
-                except (TypeError, ValueError):
-                    continue
-                if created_pid != child.pid or not candidate.timestamp:
-                    continue
-                candidate_dt = Normalizer.try_parse_complete_datetime(candidate.timestamp)
-                if candidate_dt is None:
-                    continue
-                time_delta = abs((child_dt - candidate_dt).total_seconds())
-                if time_delta <= window_seconds:
-                    matching_creates.append((time_delta, candidate))
-
-            if matching_creates:
-                _, candidate = min(matching_creates, key=lambda match: match[0])
-                parent_evidence[candidate.event_id] = candidate
 
             parent_epoch = tracker.get_active_epoch(
                 parent_pid,
                 child.timestamp
             )
-            if parent_epoch and parent_epoch.is_explicit_start:
-                parent_start = next(
-                    (
-                        candidate
-                        for candidate in parent_candidates
-                        if candidate.event_id == parent_epoch.start_event_id
-                    ),
-                    None
-                )
-                if parent_start:
-                    parent_evidence[parent_start.event_id] = parent_start
+
+            if parent_epoch:
+                for candidate in parent_candidates:
+                    if not candidate.timestamp:
+                        continue
+
+                    candidate_type = candidate.event_type.upper()
+
+                    if candidate_type == "PROCESS_CREATE":
+                        try:
+                            created_pid = int(
+                                (candidate.metadata or {}).get("created_pid")
+                            )
+                        except (TypeError, ValueError):
+                            continue
+
+                        if created_pid != child.pid or candidate.pid != parent_pid:
+                            continue
+
+                    elif candidate_type != "PROCESS_START":
+                        continue
+
+                    candidate_dt = Normalizer.try_parse_complete_datetime(
+                        candidate.timestamp
+                    )
+
+                    if candidate_dt is None or candidate_dt > child_dt:
+                        continue
+
+                    if candidate.event_id == parent_epoch.start_event_id:
+                        parent_evidence[candidate.event_id] = candidate
+
+                    elif (
+                        candidate_type == "PROCESS_CREATE"
+                        and (child_dt - candidate_dt).total_seconds() <= window_seconds
+                    ):
+                        parent_evidence[candidate.event_id] = candidate
+
+                if parent_epoch.is_explicit_start:
+                    parent_start = next(
+                        (
+                            candidate
+                            for candidate in parent_candidates
+                            if candidate.event_id == parent_epoch.start_event_id
+                        ),
+                        None
+                    )
+
+                    if parent_start:
+                        parent_evidence[parent_start.event_id] = parent_start
 
             for parent_event in parent_evidence.values():
-                direct_create = parent_event.event_type.upper() == "PROCESS_CREATE"
-                if direct_create:
+                parent_create_evidence = (
+                    parent_event.event_type.upper() == "PROCESS_CREATE"
+                )
+
+                child_create_evidence = (
+                    child.event_type.upper() == "PROCESS_CREATE"
+                )
+
+                if child_create_evidence:
                     explanation = (
-                        f"Process-create evidence by parent PID {parent_pid} "
-                        f"explicitly names child PID {child.pid}; matched to "
-                        f"the child start record reporting Parent PID {child.ppid}."
+                        f"Child Process Create evidence for PID {child.pid} "
+                        f"explicitly reports Parent PID {child.ppid}. "
+                        f"Parent PID {parent_pid} was matched to its recorded "
+                        f"process instance and validated against its active epoch."
                     )
+
+                elif parent_create_evidence:
+                    explanation = (
+                        f"Parent Process Create evidence explicitly names child PID {child.pid}; "
+                        f"the child start record confirms Parent PID {child.ppid}, "
+                        f"and the parent lifetime was validated."
+                    )
+
                 else:
                     explanation = (
                         f"Parent process start evidence for PID {parent_pid} "
@@ -384,6 +397,7 @@ class ProcessCorrelator:
                         f"(reported PPID {child.ppid}) were validated within "
                         f"the active process epoch."
                     )
+
                 explanation = (
                     f"{explanation} Parent process: '{parent_event.process_name}'. "
                     f"Child process: '{child.process_name}'."
@@ -393,10 +407,16 @@ class ProcessCorrelator:
                     source_event_id=parent_event.event_id,
                     target_event_id=child.event_id,
                     relationship_type="SPAWNED",
-                    confidence_score=0.98 if direct_create else 0.95,
+                    confidence_score=(
+                        0.98
+                        if (parent_create_evidence or child_create_evidence)
+                        else 0.95
+                    ),
                     correlation_method=(
-                        "Explicit Process Create PID Match"
-                        if direct_create
+                        "Procmon Process Create Parent PID & Lifetime Validation"
+                        if child_create_evidence
+                        else "Parent Process Create & Child PID-PPID Lifetime Validation"
+                        if parent_create_evidence
                         else "Explicit PID-PPID Lineage & Lifetime Validation"
                     ),
                     supporting_identifiers=[

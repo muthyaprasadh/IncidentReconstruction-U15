@@ -1,0 +1,508 @@
+{
+  "experiment": "EXP-06 Held-Out Ablation Study",
+  "project": "U-15 Cross-Artifact Incident Reconstruction",
+  "evaluated_at": "2026-11-22T10:51:32.695095+00:00",
+  "dataset_type": "Synthetic held-out validation",
+  "cases": [
+    "CASE-20-20_HELD_OUT_MIXED",
+    "CASE-21-21_HELD_OUT_PID_REUSE",
+    "CASE-22-22_HELD_OUT_MISSING_REG_NOISE"
+  ],
+  "temporal_window_seconds": 5.0,
+  "method": "Proposed provenance graph",
+  "ablation_definitions": {
+    "Without Procmon": "Removes events from procmon_events.csv",
+    "Without Sysmon": "Removes events from sysmon_events.xml",
+    "Without Wireshark": "Removes events from wireshark_packets.csv",
+    "Without Registry": "Removes all events with source registry"
+  },
+  "evaluation_scope": "Exact expected event-relationship matches, scoped to event endpoints appearing in the original expected relationships.",
+  "limitations": [
+    "All held-out cases are synthetic.",
+    "Registry evidence is absent in the standalone registry snapshot for CASE-21 and CASE-22.",
+    "Procmon also contributes Registry-source observations.",
+    "Unreviewed relationships are not confirmed false positives.",
+    "Precision, F1 and false-positive rate are not calculated.",
+    "Results measure this implementation on these three cases only."
+  ],
+  "case_results": [
+    {
+      "case_id": "CASE-20-20_HELD_OUT_MIXED",
+      "original_event_count": 19,
+      "expected_relationship_count": 6,
+      "results": [
+        {
+          "ablation": "Full Evidence",
+          "removed_source": null,
+          "remaining_event_count": 19,
+          "remaining_source_counts": {
+            "registry": 9,
+            "process": 5,
+            "network": 5
+          },
+          "runtime_seconds": 0.002905,
+          "predicted_relationship_count": 7,
+          "matched_relationship_count": 6,
+          "missing_relationship_count": 0,
+          "unreviewed_relationship_count": 1,
+          "expected_link_recall": 1.0,
+          "missing_relationships": [],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ]
+          ]
+        },
+        {
+          "ablation": "Without Procmon",
+          "removed_source": "procmon",
+          "remaining_event_count": 10,
+          "remaining_source_counts": {
+            "registry": 3,
+            "process": 2,
+            "network": 5
+          },
+          "runtime_seconds": 0.001006,
+          "predicted_relationship_count": 4,
+          "matched_relationship_count": 4,
+          "missing_relationship_count": 2,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 0.666667,
+          "missing_relationships": [
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ],
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-REG-procmon_events-R00008-a915e9",
+              "MODIFIED"
+            ]
+          ],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Sysmon",
+          "removed_source": "sysmon",
+          "remaining_event_count": 16,
+          "remaining_source_counts": {
+            "registry": 9,
+            "process": 3,
+            "network": 4
+          },
+          "runtime_seconds": 0.001366,
+          "predicted_relationship_count": 2,
+          "matched_relationship_count": 2,
+          "missing_relationship_count": 4,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 0.333333,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Wireshark",
+          "removed_source": "wireshark",
+          "remaining_event_count": 15,
+          "remaining_source_counts": {
+            "registry": 9,
+            "process": 5,
+            "network": 1
+          },
+          "runtime_seconds": 0.00199,
+          "predicted_relationship_count": 4,
+          "matched_relationship_count": 3,
+          "missing_relationship_count": 3,
+          "unreviewed_relationship_count": 1,
+          "expected_link_recall": 0.5,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ]
+          ],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ]
+          ]
+        },
+        {
+          "ablation": "Without Registry",
+          "removed_source": "registry",
+          "remaining_event_count": 10,
+          "remaining_source_counts": {
+            "process": 5,
+            "network": 5
+          },
+          "runtime_seconds": 0.001543,
+          "predicted_relationship_count": 6,
+          "matched_relationship_count": 5,
+          "missing_relationship_count": 1,
+          "unreviewed_relationship_count": 1,
+          "expected_link_recall": 0.833333,
+          "missing_relationships": [
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-REG-procmon_events-R00008-a915e9",
+              "MODIFIED"
+            ]
+          ],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CASE-21-21_HELD_OUT_PID_REUSE",
+      "original_event_count": 7,
+      "expected_relationship_count": 2,
+      "results": [
+        {
+          "ablation": "Full Evidence",
+          "removed_source": null,
+          "remaining_event_count": 7,
+          "remaining_source_counts": {
+            "process": 5,
+            "network": 2
+          },
+          "runtime_seconds": 0.000971,
+          "predicted_relationship_count": 2,
+          "matched_relationship_count": 2,
+          "missing_relationship_count": 0,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 1.0,
+          "missing_relationships": [],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Procmon",
+          "removed_source": "procmon",
+          "remaining_event_count": 4,
+          "remaining_source_counts": {
+            "process": 2,
+            "network": 2
+          },
+          "runtime_seconds": 0.00063,
+          "predicted_relationship_count": 2,
+          "matched_relationship_count": 2,
+          "missing_relationship_count": 0,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 1.0,
+          "missing_relationships": [],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Sysmon",
+          "removed_source": "sysmon",
+          "remaining_event_count": 4,
+          "remaining_source_counts": {
+            "process": 3,
+            "network": 1
+          },
+          "runtime_seconds": 0.00059,
+          "predicted_relationship_count": 0,
+          "matched_relationship_count": 0,
+          "missing_relationship_count": 2,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 0.0,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "EVT-NET-wireshark_packets-P00001-c89377",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00002-7c4a21",
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Wireshark",
+          "removed_source": "wireshark",
+          "remaining_event_count": 6,
+          "remaining_source_counts": {
+            "process": 5,
+            "network": 1
+          },
+          "runtime_seconds": 0.000732,
+          "predicted_relationship_count": 1,
+          "matched_relationship_count": 1,
+          "missing_relationship_count": 1,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 0.5,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "EVT-NET-wireshark_packets-P00001-c89377",
+              "OBSERVED_IN"
+            ]
+          ],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Registry",
+          "removed_source": "registry",
+          "remaining_event_count": 7,
+          "remaining_source_counts": {
+            "process": 5,
+            "network": 2
+          },
+          "runtime_seconds": 0.000805,
+          "predicted_relationship_count": 2,
+          "matched_relationship_count": 2,
+          "missing_relationship_count": 0,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 1.0,
+          "missing_relationships": [],
+          "unreviewed_relationships": []
+        }
+      ]
+    },
+    {
+      "case_id": "CASE-22-22_HELD_OUT_MISSING_REG_NOISE",
+      "original_event_count": 24,
+      "expected_relationship_count": 5,
+      "results": [
+        {
+          "ablation": "Full Evidence",
+          "removed_source": null,
+          "remaining_event_count": 24,
+          "remaining_source_counts": {
+            "registry": 5,
+            "process": 5,
+            "network": 14
+          },
+          "runtime_seconds": 0.002458,
+          "predicted_relationship_count": 6,
+          "matched_relationship_count": 5,
+          "missing_relationship_count": 0,
+          "unreviewed_relationship_count": 1,
+          "expected_link_recall": 1.0,
+          "missing_relationships": [],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ]
+          ]
+        },
+        {
+          "ablation": "Without Procmon",
+          "removed_source": "procmon",
+          "remaining_event_count": 16,
+          "remaining_source_counts": {
+            "process": 2,
+            "network": 14
+          },
+          "runtime_seconds": 0.001624,
+          "predicted_relationship_count": 4,
+          "matched_relationship_count": 4,
+          "missing_relationship_count": 1,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 0.8,
+          "missing_relationships": [
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ]
+          ],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Sysmon",
+          "removed_source": "sysmon",
+          "remaining_event_count": 21,
+          "remaining_source_counts": {
+            "registry": 5,
+            "process": 3,
+            "network": 13
+          },
+          "runtime_seconds": 0.001164,
+          "predicted_relationship_count": 1,
+          "matched_relationship_count": 1,
+          "missing_relationship_count": 4,
+          "unreviewed_relationship_count": 0,
+          "expected_link_recall": 0.2,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ],
+          "unreviewed_relationships": []
+        },
+        {
+          "ablation": "Without Wireshark",
+          "removed_source": "wireshark",
+          "remaining_event_count": 11,
+          "remaining_source_counts": {
+            "registry": 5,
+            "process": 5,
+            "network": 1
+          },
+          "runtime_seconds": 0.001819,
+          "predicted_relationship_count": 3,
+          "matched_relationship_count": 2,
+          "missing_relationship_count": 3,
+          "unreviewed_relationship_count": 1,
+          "expected_link_recall": 0.4,
+          "missing_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ],
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ]
+          ],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ]
+          ]
+        },
+        {
+          "ablation": "Without Registry",
+          "removed_source": "registry",
+          "remaining_event_count": 19,
+          "remaining_source_counts": {
+            "process": 5,
+            "network": 14
+          },
+          "runtime_seconds": 0.002882,
+          "predicted_relationship_count": 6,
+          "matched_relationship_count": 5,
+          "missing_relationship_count": 0,
+          "unreviewed_relationship_count": 1,
+          "expected_link_recall": 1.0,
+          "missing_relationships": [],
+          "unreviewed_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "aggregate_results": [
+    {
+      "ablation": "Full Evidence",
+      "matched_relationships": 13,
+      "expected_relationships": 13,
+      "micro_recall": 1.0,
+      "macro_recall": 1.0,
+      "mean_runtime_seconds": 0.002111
+    },
+    {
+      "ablation": "Without Procmon",
+      "matched_relationships": 10,
+      "expected_relationships": 13,
+      "micro_recall": 0.769231,
+      "macro_recall": 0.822222,
+      "mean_runtime_seconds": 0.001087
+    },
+    {
+      "ablation": "Without Sysmon",
+      "matched_relationships": 3,
+      "expected_relationships": 13,
+      "micro_recall": 0.230769,
+      "macro_recall": 0.177778,
+      "mean_runtime_seconds": 0.00104
+    },
+    {
+      "ablation": "Without Wireshark",
+      "matched_relationships": 6,
+      "expected_relationships": 13,
+      "micro_recall": 0.461538,
+      "macro_recall": 0.466667,
+      "mean_runtime_seconds": 0.001514
+    },
+    {
+      "ablation": "Without Registry",
+      "matched_relationships": 12,
+      "expected_relationships": 13,
+      "micro_recall": 0.923077,
+      "macro_recall": 0.944444,
+      "mean_runtime_seconds": 0.001743
+    }
+  ],
+  "database_writes": false,
+  "ground_truth_modifications": false,
+  "evidence_ingestion": false
+}

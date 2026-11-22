@@ -1,0 +1,199 @@
+{
+    "experiment": "EXP-05",
+    "title": "Provenance Traceability Audit",
+    "dataset_type": "Held-out synthetic validation",
+    "cases": [
+        {
+            "case_id": "CASE-20-20_HELD_OUT_MIXED",
+            "dataset_type": "held_out_synthetic",
+            "runtime_seconds": 0.002443,
+            "expected_relationship_count": 6,
+            "predicted_relationship_count": 9,
+            "event_metrics": {
+                "total_events": 19,
+                "graph_event_nodes": 19,
+                "events_with_evidence_reference": 19,
+                "events_with_evidence_file": 19,
+                "events_with_evidence_row_reference": 19,
+                "events_with_source": 19,
+                "event_reference_coverage_percent": 100.0,
+                "evidence_file_coverage_percent": 100.0,
+                "evidence_row_reference_coverage_percent": 100.0,
+                "event_source_coverage_percent": 100.0
+            },
+            "relationship_provenance_metrics": {
+                "correlation_method": {
+                    "count": 9,
+                    "total": 9,
+                    "coverage_percent": 100.0
+                },
+                "supporting_identifiers": {
+                    "count": 9,
+                    "total": 9,
+                    "coverage_percent": 100.0
+                },
+                "evidence_sources": {
+                    "count": 9,
+                    "total": 9,
+                    "coverage_percent": 100.0
+                },
+                "explanation": {
+                    "count": 9,
+                    "total": 9,
+                    "coverage_percent": 100.0
+                },
+                "confidence": {
+                    "count": 9,
+                    "total": 9,
+                    "coverage_percent": 100.0
+                },
+                "relationship_category": {
+                    "count": 9,
+                    "total": 9,
+                    "coverage_percent": 100.0
+                },
+                "both_endpoint_event_nodes": {
+                    "count": 9,
+                    "total": 9,
+                    "coverage_percent": 100.0
+                }
+            },
+            "limitations": [
+                "This audit measures the presence of provenance fields, not their independent correctness.",
+                "A populated evidence reference does not independently verify the original evidence file.",
+                "The cases are held-out synthetic validation cases, not real-world incident captures.",
+                "Coverage percentages do not establish correlation accuracy.",
+                "Unreviewed relationships must not automatically be classified as false positives."
+            ]
+        },
+        {
+            "case_id": "CASE-21-21_HELD_OUT_PID_REUSE",
+            "dataset_type": "held_out_synthetic",
+            "runtime_seconds": 0.000899,
+            "expected_relationship_count": 2,
+            "predicted_relationship_count": 2,
+            "event_metrics": {
+                "total_events": 7,
+                "graph_event_nodes": 7,
+                "events_with_evidence_reference": 7,
+                "events_with_evidence_file": 7,
+                "events_with_evidence_row_reference": 7,
+                "events_with_source": 7,
+                "event_reference_coverage_percent": 100.0,
+                "evidence_file_coverage_percent": 100.0,
+                "evidence_row_reference_coverage_percent": 100.0,
+                "event_source_coverage_percent": 100.0
+            },
+            "relationship_provenance_metrics": {
+                "correlation_method": {
+                    "count": 2,
+                    "total": 2,
+                    "coverage_percent": 100.0
+                },
+                "supporting_identifiers": {
+                    "count": 2,
+                    "total": 2,
+                    "coverage_percent": 100.0
+                },
+                "evidence_sources": {
+                    "count": 2,
+                    "total": 2,
+                    "coverage_percent": 100.0
+                },
+                "explanation": {
+                    "count": 2,
+                    "total": 2,
+                    "coverage_percent": 100.0
+                },
+                "confidence": {
+                    "count": 2,
+                    "total": 2,
+                    "coverage_percent": 100.0
+                },
+                "relationship_category": {
+                    "count": 2,
+                    "total": 2,
+                    "coverage_percent": 100.0
+                },
+                "both_endpoint_event_nodes": {
+                    "count": 2,
+                    "total": 2,
+                    "coverage_percent": 100.0
+                }
+            },
+            "limitations": [
+                "This audit measures the presence of provenance fields, not their independent correctness.",
+                "A populated evidence reference does not independently verify the original evidence file.",
+                "The cases are held-out synthetic validation cases, not real-world incident captures.",
+                "Coverage percentages do not establish correlation accuracy.",
+                "Unreviewed relationships must not automatically be classified as false positives."
+            ]
+        },
+        {
+            "case_id": "CASE-22-22_HELD_OUT_MISSING_REG_NOISE",
+            "dataset_type": "held_out_synthetic",
+            "runtime_seconds": 0.00322,
+            "expected_relationship_count": 5,
+            "predicted_relationship_count": 8,
+            "event_metrics": {
+                "total_events": 24,
+                "graph_event_nodes": 24,
+                "events_with_evidence_reference": 24,
+                "events_with_evidence_file": 24,
+                "events_with_evidence_row_reference": 24,
+                "events_with_source": 24,
+                "event_reference_coverage_percent": 100.0,
+                "evidence_file_coverage_percent": 100.0,
+                "evidence_row_reference_coverage_percent": 100.0,
+                "event_source_coverage_percent": 100.0
+            },
+            "relationship_provenance_metrics": {
+                "correlation_method": {
+                    "count": 8,
+                    "total": 8,
+                    "coverage_percent": 100.0
+                },
+                "supporting_identifiers": {
+                    "count": 8,
+                    "total": 8,
+                    "coverage_percent": 100.0
+                },
+                "evidence_sources": {
+                    "count": 8,
+                    "total": 8,
+                    "coverage_percent": 100.0
+                },
+                "explanation": {
+                    "count": 8,
+                    "total": 8,
+                    "coverage_percent": 100.0
+                },
+                "confidence": {
+                    "count": 8,
+                    "total": 8,
+                    "coverage_percent": 100.0
+                },
+                "relationship_category": {
+                    "count": 8,
+                    "total": 8,
+                    "coverage_percent": 100.0
+                },
+                "both_endpoint_event_nodes": {
+                    "count": 8,
+                    "total": 8,
+                    "coverage_percent": 100.0
+                }
+            },
+            "limitations": [
+                "This audit measures the presence of provenance fields, not their independent correctness.",
+                "A populated evidence reference does not independently verify the original evidence file.",
+                "The cases are held-out synthetic validation cases, not real-world incident captures.",
+                "Coverage percentages do not establish correlation accuracy.",
+                "Unreviewed relationships must not automatically be classified as false positives."
+            ]
+        }
+    ],
+    "database_writes": false,
+    "ground_truth_modifications": false,
+    "evidence_ingestion": false
+}

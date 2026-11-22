@@ -20,7 +20,7 @@ GRAPHS_DIR = OUTPUT_DIR / "graphs"
 CHARTS_DIR = OUTPUT_DIR / "charts"
 
 DATABASE_DIR = BASE_DIR / "database"
-DB_PATH = DATABASE_DIR / "forensics.db"
+DB_PATH = Path(os.environ.get("U15_DB_PATH", str(DATABASE_DIR / "forensics.db"))).expanduser().resolve()
 
 # Ensure all primary runtime directories exist
 for directory in [

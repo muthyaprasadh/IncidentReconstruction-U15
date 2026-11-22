@@ -279,7 +279,8 @@ class SysmonParser:
         ):
             self.warnings.append(
                 f"XML Event {row_idx}: UtcTime and SystemTime differ by "
-                f"{timestamp_delta_ms} ms; timestamp omitted from chronology."
+                f"{timestamp_delta_ms} ms; UtcTime retained for chronology "
+                "and discrepancy preserved in metadata."
             )
             system_iso_ts = timestamp_metadata["SystemTimeNormalized"]
             if system_iso_ts:
@@ -289,8 +290,6 @@ class SysmonParser:
                 )
                 timestamp_metadata["timestamp_uncertainty_start"] = timestamp_bounds[0]
                 timestamp_metadata["timestamp_uncertainty_end"] = timestamp_bounds[1]
-            iso_ts = ""
-            timestamp_source = ""
 
         raw_process_guid = data.get("ProcessGuid", "")
         process_guid = _process_guid(raw_process_guid)

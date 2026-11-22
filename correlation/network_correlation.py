@@ -212,62 +212,112 @@ class NetworkCorrelator:
                 case_id=case_id
             ))
 
-        # 2. Directly observed: Sysmon EID 3 bound via ProcessGuid or PID lifetime.
+        # 2. Attribute Sysmon EID 3 only to a validated explicit process start.
+        # Sysmon EID 3 is direct network telemetry; this edge records process
+        # attribution and must not use an arbitrary Procmon operation as its source.
         for ep_net in sysmon_net:
-            if not use_five_tuple_matching:
+            if ep_net.pid is None or not ep_net.timestamp:
                 continue
+
             guid = event_process_guid(ep_net)
-            p_cand: Optional[NormalizedEvent] = None
-            if guid and guid.lower() in by_guid:
-                for pe in by_guid[guid.lower()]:
-                    if pe.event_id != ep_net.event_id:
-                        p_cand = pe
-                        break
-            if not p_cand and ep_net.pid is not None and ep_net.pid in by_pid:
-                if not ep_net.timestamp:
-                    continue
-                for pe in by_pid[ep_net.pid]:
-                    if pe.event_id == ep_net.event_id:
-                        continue
-                    if not tracker.is_pid_active(
-                        ep_net.pid, pe.process_name, ep_net.timestamp, process_guid=guid
-                    ):
-                        continue
-                    if pe.process_name and ep_net.process_name and pe.process_name.lower() != ep_net.process_name.lower():
-                        continue
-                    p_cand = pe
-                    break
+            epoch = tracker.get_active_epoch(
+                ep_net.pid,
+                ep_net.timestamp,
+                process_guid=guid
+            )
 
-            if not p_cand:
+            if epoch is None or not epoch.is_explicit_start:
                 continue
 
-            transport = ep_net.protocol or "socket"
+            process_event = events_by_id.get(epoch.start_event_id)
+            if process_event is None:
+                continue
+
+            if process_event.event_type.upper() != "PROCESS_START":
+                continue
+
+            if process_event.pid != ep_net.pid:
+                continue
+
+            if (
+                ep_net.process_name
+                and process_event.process_name
+                and ep_net.process_name.lower() != process_event.process_name.lower()
+            ):
+                continue
+
+            process_guid = event_process_guid(process_event)
+            if guid and process_guid and guid.lower() != process_guid.lower():
+                continue
+
+            transport = ep_net.protocol or "unknown transport"
             tuple_desc = ""
             if cls._is_valid_five_tuple(ep_net):
-                tuple_desc = f"{ep_net.src_ip}:{ep_net.src_port} -> {ep_net.dst_ip}:{ep_net.dst_port}"
-            guid_note = f" ProcessGuid {guid}." if guid else " ProcessGuid not present; PID lifetime used."
-            explanation = (
-                f"Directly observed Sysmon Event ID 3: Process '{ep_net.process_name or p_cand.process_name}' "
-                f"(PID {ep_net.pid}) initiated {transport} activity {tuple_desc}.{guid_note}"
+                tuple_desc = (
+                    f"{ep_net.src_ip}:{ep_net.src_port} -> "
+                    f"{ep_net.dst_ip}:{ep_net.dst_port}"
+                )
+
+            metadata = ep_net.metadata or {}
+            initiated_value = metadata.get(
+                "Initiated",
+                metadata.get("initiated")
             )
-            supporting = [f"SysmonEventID:3"]
+            if isinstance(initiated_value, bool):
+                initiated_value = str(initiated_value).lower()
+            else:
+                initiated_value = str(initiated_value or "").strip().lower()
+
+            if initiated_value == "true":
+                direction_note = "Sysmon marks the connection as initiated"
+            elif initiated_value == "false":
+                direction_note = "Sysmon marks the connection as not initiated"
+            else:
+                direction_note = "Sysmon does not specify the initiation direction"
+
+            guid_verified = bool(
+                guid and process_guid and guid.lower() == process_guid.lower()
+            )
+            attribution_method = (
+                "ProcessGuid and Process Lifetime"
+                if guid_verified
+                else "PID and Process Lifetime"
+            )
+
+            process_name = ep_net.process_name or process_event.process_name or "unknown"
+            socket_note = f" ({tuple_desc})" if tuple_desc else ""
+
+            explanation = (
+                f"Sysmon Event ID 3 records {transport} network activity"
+                f"{socket_note} for process '{process_name}' (PID {ep_net.pid}). "
+                f"{direction_note}. The process attribution is supported by "
+                f"explicit process-start event {process_event.event_id} and "
+                f"{attribution_method} validation."
+            )
+
+            supporting = [
+                "SysmonEventID:3",
+                f"PID:{ep_net.pid}",
+                f"ProcessStartEvent:{process_event.event_id}",
+                f"AttributionMethod:{attribution_method}"
+            ]
             if guid:
                 supporting.append(f"ProcessGuid:{guid}")
-            if ep_net.pid is not None:
-                supporting.append(f"PID:{ep_net.pid}")
             if tuple_desc:
                 supporting.append(f"Socket:{tuple_desc}")
+            if initiated_value in ("true", "false"):
+                supporting.append(f"Initiated:{initiated_value}")
 
             relationships.append(EventRelationship(
-                source_event_id=p_cand.event_id,
+                source_event_id=process_event.event_id,
                 target_event_id=ep_net.event_id,
                 relationship_type="CONNECTED_TO",
-                confidence_score=0.95,
-                correlation_method="Sysmon Event ID 3 Process Network Telemetry",
+                confidence_score=0.95 if guid_verified else 0.90,
+                correlation_method=f"Sysmon Event ID 3 {attribution_method}",
                 supporting_identifiers=supporting,
                 evidence_sources=["process", "network"],
                 explanation=explanation,
-                relationship_category="Directly observed",
+                relationship_category="Process attribution",
                 case_id=case_id
             ))
 
@@ -354,9 +404,13 @@ class NetworkCorrelator:
                     )
                     process_event = (
                         events_by_id.get(epoch.start_event_id)
-                        if epoch else None
+                        if epoch and epoch.is_explicit_start else None
                     )
-                    if process_event is not None:
+                    if (
+                        process_event is not None
+                        and process_event.event_type.upper() == "PROCESS_START"
+                        and process_event.pid == ep_net.pid
+                    ):
                         relationships.append(EventRelationship(
                             source_event_id=process_event.event_id,
                             target_event_id=ep_net.event_id,

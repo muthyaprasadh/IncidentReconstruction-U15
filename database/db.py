@@ -321,33 +321,110 @@ def update_evidence_file_stats(file_id: int, record_count: int, status: str, err
 def insert_events_batch(events: List[NormalizedEvent]) -> int:
     if not events:
         return 0
+
+    event_ids = [ev.event_id for ev in events]
+
+    if len(event_ids) != len(set(event_ids)):
+        raise ValueError("Duplicate event IDs detected in insertion batch.")
+
     conn = get_db_connection()
-    inserted = 0
+
     try:
         with conn:
-            for ev in events:
-                try:
-                    conn.execute(
-                        """
-                        INSERT OR REPLACE INTO events (
-                            event_id, case_id, timestamp, original_timestamp, source, event_type,
-                            pid, ppid, process_name, registry_key, registry_operation,
-                            src_ip, dst_ip, src_port, dst_port, protocol, file_path,
-                            evidence_file, evidence_reference, metadata_json, process_guid
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """,
+            conn.executemany(
+                """
+                INSERT INTO events (
+                    event_id, case_id, timestamp, original_timestamp, source, event_type,
+                    pid, ppid, process_name, registry_key, registry_operation,
+                    src_ip, dst_ip, src_port, dst_port, protocol, file_path,
+                    evidence_file, evidence_reference, metadata_json, process_guid
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        ev.event_id, ev.case_id, ev.timestamp, ev.original_timestamp,
+                        ev.source, ev.event_type, ev.pid, ev.ppid, ev.process_name,
+                        ev.registry_key, ev.registry_operation, ev.src_ip, ev.dst_ip,
+                        ev.src_port, ev.dst_port, ev.protocol, ev.file_path,
+                        ev.evidence_file, ev.evidence_reference,
+                        json.dumps(ev.metadata or {}),
+                        getattr(ev, "process_guid", "") or (ev.metadata or {}).get("ProcessGuid", "")
+                    )
+                    for ev in events
+                ]
+            )
+
+        return len(events)
+
+    finally:
+        conn.close()
+
+
+
+def commit_evidence_ingestion(
+    file_id: int,
+    case_id: str,
+    events: List[NormalizedEvent],
+    status: str,
+    errors: str = ""
+) -> int:
+    """Atomically insert one evidence file's events and update its ingestion status."""
+
+    if not file_id or not case_id:
+        raise ValueError("file_id and case_id are required.")
+
+    if status not in {"Parsed", "Parsed with Errors"}:
+        raise ValueError(f"Invalid successful ingestion status: {status}")
+
+    event_ids = [ev.event_id for ev in events]
+    if len(event_ids) != len(set(event_ids)):
+        raise ValueError("Duplicate event IDs detected in insertion batch.")
+
+    if any(ev.case_id != case_id for ev in events):
+        raise ValueError("Every event must belong to the evidence file's case.")
+
+    conn = get_db_connection()
+    try:
+        with conn:
+            if events:
+                conn.executemany(
+                    """
+                    INSERT INTO events (
+                        event_id, case_id, timestamp, original_timestamp, source, event_type,
+                        pid, ppid, process_name, registry_key, registry_operation,
+                        src_ip, dst_ip, src_port, dst_port, protocol, file_path,
+                        evidence_file, evidence_reference, metadata_json, process_guid
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    [
                         (
-                            ev.event_id, ev.case_id, ev.timestamp, ev.original_timestamp, ev.source, ev.event_type,
-                            ev.pid, ev.ppid, ev.process_name, ev.registry_key, ev.registry_operation,
-                            ev.src_ip, ev.dst_ip, ev.src_port, ev.dst_port, ev.protocol, ev.file_path,
-                            ev.evidence_file, ev.evidence_reference, json.dumps(ev.metadata or {}),
+                            ev.event_id, ev.case_id, ev.timestamp, ev.original_timestamp,
+                            ev.source, ev.event_type, ev.pid, ev.ppid, ev.process_name,
+                            ev.registry_key, ev.registry_operation, ev.src_ip, ev.dst_ip,
+                            ev.src_port, ev.dst_port, ev.protocol, ev.file_path,
+                            ev.evidence_file, ev.evidence_reference,
+                            json.dumps(ev.metadata or {}),
                             getattr(ev, "process_guid", "") or (ev.metadata or {}).get("ProcessGuid", "")
                         )
-                    )
-                    inserted += 1
-                except sqlite3.Error as e:
-                    logger.warning("Could not insert event %s: %s", ev.event_id, e)
-        return inserted
+                        for ev in events
+                    ]
+                )
+
+            cursor = conn.execute(
+                """
+                UPDATE evidence_files
+                SET record_count = ?, status = ?, errors = ?
+                WHERE id = ? AND case_id = ?
+                """,
+                (len(events), status, errors, file_id, case_id)
+            )
+
+            if cursor.rowcount != 1:
+                raise ValueError(
+                    f"Evidence-file record {file_id} was not found for case {case_id}."
+                )
+
+        return len(events)
     finally:
         conn.close()
 

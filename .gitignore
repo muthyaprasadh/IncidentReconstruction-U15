@@ -17,3 +17,7 @@ database/*.db
 database/*.db*
 *.bak
 *.backup
+
+data/ground_truth/EXP-03-REPEAT-REAL_ground_truth.json
+
+data/ground_truth/EXP-03-REPEAT-REAL_ground_truth.json

@@ -1,0 +1,35 @@
+{
+    "experiment": "EXP-07",
+    "title": "Held-Out Timeline Ordering Evaluation",
+    "dataset_type": "Synthetic held-out cases",
+    "ordering_method": "Timestamp-sorted timeline",
+    "results": [
+        {
+            "case_id": "CASE-20-20_HELD_OUT_MIXED",
+            "expected_events": 10,
+            "timeline_events": 19,
+            "chronology_coverage": 1.0,
+            "normalized_kendall_tau": 1.0,
+            "ordering_method": "Timestamp-sorted timeline"
+        },
+        {
+            "case_id": "CASE-21-21_HELD_OUT_PID_REUSE",
+            "expected_events": 4,
+            "timeline_events": 7,
+            "chronology_coverage": 1.0,
+            "normalized_kendall_tau": 1.0,
+            "ordering_method": "Timestamp-sorted timeline"
+        },
+        {
+            "case_id": "CASE-22-22_HELD_OUT_MISSING_REG_NOISE",
+            "expected_events": 9,
+            "timeline_events": 24,
+            "chronology_coverage": 1.0,
+            "normalized_kendall_tau": 1.0,
+            "ordering_method": "Timestamp-sorted timeline"
+        }
+    ],
+    "database_writes": "NONE",
+    "ground_truth_modifications": "NONE",
+    "evidence_ingestion": "NONE"
+}

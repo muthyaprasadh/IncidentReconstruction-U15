@@ -1,4 +1,3 @@
-
 from typing import List, Dict, Optional
 from database.models import NormalizedEvent, EventRelationship
 from correlation.process_correlation import ProcessLifetimeTracker
@@ -51,6 +50,7 @@ class RegistryCorrelator:
                     continue
 
                 process_guid = getattr(reg, "process_guid", "") or ""
+
                 epoch = tracker.get_active_epoch(
                     reg.pid,
                     reg.timestamp,
@@ -66,28 +66,74 @@ class RegistryCorrelator:
                     continue
 
                 p_cand = events_by_id.get(epoch.start_event_id)
-                if not epoch.is_explicit_start:
-                    reg_dt = Normalizer.try_parse_complete_datetime(reg.timestamp)
+
+                reg_dt = Normalizer.try_parse_complete_datetime(
+                    reg.timestamp
+                )
+
+                if reg_dt is not None:
                     lifecycle_candidates = []
-                    if reg_dt is not None:
-                        for pe in by_pid.get(reg.pid, []):
-                            if pe.event_type.upper() not in ("PROCESS_CREATE", "PROCESS_START"):
-                                continue
-                            pe_dt = Normalizer.try_parse_complete_datetime(pe.timestamp)
-                            if pe_dt is None:
-                                continue
-                            delta = abs((reg_dt - pe_dt).total_seconds())
-                            if delta <= window_seconds:
-                                lifecycle_candidates.append((delta, pe))
-                    if lifecycle_candidates:
-                        p_cand = min(lifecycle_candidates, key=lambda item: item[0])[1]
+
+                    for pe in by_pid.get(reg.pid, []):
+
+                        if pe.event_type.upper() not in (
+                            "PROCESS_CREATE",
+                            "PROCESS_START"
+                        ):
+                            continue
+
+                        if not pe.timestamp:
+                            continue
+
+                        if (
+                            reg.process_name
+                            and pe.process_name
+                            and reg.process_name.lower() != pe.process_name.lower()
+                        ):
+                            continue
+
+                        pe_dt = Normalizer.try_parse_complete_datetime(
+                            pe.timestamp
+                        )
+
+                        if pe_dt is None:
+                            continue
+
+                        if pe_dt < epoch.start_time or pe_dt > reg_dt:
+                            continue
+
+                        if not tracker.is_pid_active(
+                            reg.pid,
+                            pe.process_name,
+                            reg.timestamp,
+                            process_guid=process_guid
+                        ):
+                            continue
+
+                        delta = (reg_dt - pe_dt).total_seconds()
+
+                        if delta <= window_seconds:
+                            lifecycle_candidates.append((delta, pe))
+
+                    procmon_create_candidates = [
+                        item for item in lifecycle_candidates
+                        if item[1].event_type.upper() == "PROCESS_CREATE"
+                    ]
+
+                    if procmon_create_candidates:
+                        _, p_cand = min(
+                            procmon_create_candidates,
+                            key=lambda item: item[0]
+                        )
+
+                    elif p_cand is None and lifecycle_candidates:
+                        _, p_cand = min(
+                            lifecycle_candidates,
+                            key=lambda item: item[0]
+                        )
 
                 if p_cand is None:
                     candidates = []
-
-                    reg_dt = Normalizer.try_parse_complete_datetime(
-                        reg.timestamp
-                    )
 
                     for pe in by_pid.get(reg.pid, []):
                         if not pe.timestamp:
@@ -143,9 +189,11 @@ class RegistryCorrelator:
                     if epoch.is_explicit_start
                     else f"ProcessEpochObservation:{epoch.start_event_id}"
                 )
+
                 attribution = (
                     f"using its validated process epoch established by process-start evidence. "
-                    f"Epoch start event: {epoch.start_event_id}."
+                    f"Epoch start event: {epoch.start_event_id}. "
+                    f"Relationship source event: {p_cand.event_id}."
                     if epoch.is_explicit_start
                     else (
                         f"using the Registry record's PID and a process activity observation; "

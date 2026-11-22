@@ -202,7 +202,7 @@ class TestIncidentReconstructionBackend(unittest.TestCase):
         )
 
         analyzer = EvidenceGraphAnalyzer(graph)
-        paths = analyzer.find_causal_paths("process:1", "registry:1", max_paths=1)
+        paths = analyzer.find_evidence_paths("process:1", "registry:1", max_paths=1)
         self.assertEqual(len(paths), 1)
         self.assertEqual(paths[0][0], "process:1")
         self.assertEqual(paths[0][-1], "registry:1")

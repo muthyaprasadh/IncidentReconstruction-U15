@@ -1,0 +1,353 @@
+{
+  "experiment": "EXP-09",
+  "title": "Process-Instance-Equivalent Held-Out Evaluation",
+  "generated_utc": "2026-11-22T13:13:57.586129+00:00",
+  "temporal_window_seconds": 5.0,
+  "evaluation_method": {
+    "strict": "Exact source event ID, target event ID and relationship type.",
+    "equivalent": "Process-source event IDs are mapped to their validated process epoch start event ID. Relationship direction and relationship type are preserved."
+  },
+  "limitations": [
+    "Held-out cases are synthetic.",
+    "The evaluation covers annotated expected relationships only.",
+    "Unreviewed predictions are not classified as false positives.",
+    "This experiment does not establish precision, F1 or false-positive rate.",
+    "Equivalent matching depends on process-lifetime attribution.",
+    "Equivalent recall does not replace strict event-level recall."
+  ],
+  "summary": {
+    "cases": 3,
+    "expected_relationships": 13,
+    "strict_event_id_matches": 10,
+    "strict_event_id_recall": 0.769231,
+    "process_instance_equivalent_matches": 13,
+    "process_instance_equivalent_recall": 1.0
+  },
+  "case_results": [
+    {
+      "case_id": "CASE-20-20_HELD_OUT_MIXED",
+      "event_count": 19,
+      "expected_relationships": 6,
+      "predicted_relationships": 7,
+      "strict_event_id_matches": 5,
+      "strict_event_id_recall": 0.833333,
+      "process_instance_equivalent_matches": 6,
+      "process_instance_equivalent_recall": 1.0,
+      "relationship_details": [
+        {
+          "expected_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00001-d7d7be",
+            "OBSERVED_IN"
+          ],
+          "canonical_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00001-d7d7be",
+            "OBSERVED_IN"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00002-7960c3",
+            "OBSERVED_IN"
+          ],
+          "canonical_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00002-7960c3",
+            "OBSERVED_IN"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00003-2d955c",
+            "OBSERVED_IN"
+          ],
+          "canonical_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00003-2d955c",
+            "OBSERVED_IN"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-PROC-procmon_events-R00006-301e18",
+            "EVT-PROC-procmon_events-R00009-439fad",
+            "SPAWNED"
+          ],
+          "canonical_relationship": [
+            "EVT-PROC-sysmon_events-R00001-bc2d92",
+            "EVT-PROC-sysmon_events-R00003-ea8b0f",
+            "SPAWNED"
+          ],
+          "strict_event_id_match": false,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-sysmon_events-R00003-ea8b0f",
+              "SPAWNED"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00009-439fad",
+              "SPAWNED"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-PROC-procmon_events-R00006-301e18",
+            "EVT-REG-procmon_events-R00008-a915e9",
+            "MODIFIED"
+          ],
+          "canonical_relationship": [
+            "EVT-PROC-sysmon_events-R00001-bc2d92",
+            "EVT-REG-procmon_events-R00008-a915e9",
+            "MODIFIED"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-PROC-procmon_events-R00006-301e18",
+              "EVT-REG-procmon_events-R00008-a915e9",
+              "MODIFIED"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-PROC-sysmon_events-R00001-bc2d92",
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "CONNECTED_TO"
+          ],
+          "canonical_relationship": [
+            "EVT-PROC-sysmon_events-R00001-bc2d92",
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "CONNECTED_TO"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CASE-21-21_HELD_OUT_PID_REUSE",
+      "event_count": 7,
+      "expected_relationships": 2,
+      "predicted_relationships": 2,
+      "strict_event_id_matches": 1,
+      "strict_event_id_recall": 0.5,
+      "process_instance_equivalent_matches": 2,
+      "process_instance_equivalent_recall": 1.0,
+      "relationship_details": [
+        {
+          "expected_relationship": [
+            "EVT-NET-sysmon_events-R00003-b910e2",
+            "EVT-NET-wireshark_packets-P00001-c89377",
+            "OBSERVED_IN"
+          ],
+          "canonical_relationship": [
+            "EVT-NET-sysmon_events-R00003-b910e2",
+            "EVT-NET-wireshark_packets-P00001-c89377",
+            "OBSERVED_IN"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "EVT-NET-wireshark_packets-P00001-c89377",
+              "OBSERVED_IN"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-PROC-sysmon_events-R00002-7c4a21",
+            "EVT-NET-sysmon_events-R00003-b910e2",
+            "CONNECTED_TO"
+          ],
+          "canonical_relationship": [
+            "EVT-PROC-procmon_events-R00003-b097a2",
+            "EVT-NET-sysmon_events-R00003-b910e2",
+            "CONNECTED_TO"
+          ],
+          "strict_event_id_match": false,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-PROC-procmon_events-R00003-b097a2",
+              "EVT-NET-sysmon_events-R00003-b910e2",
+              "CONNECTED_TO"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CASE-22-22_HELD_OUT_MISSING_REG_NOISE",
+      "event_count": 24,
+      "expected_relationships": 5,
+      "predicted_relationships": 6,
+      "strict_event_id_matches": 4,
+      "strict_event_id_recall": 0.8,
+      "process_instance_equivalent_matches": 5,
+      "process_instance_equivalent_recall": 1.0,
+      "relationship_details": [
+        {
+          "expected_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00001-d7d7be",
+            "OBSERVED_IN"
+          ],
+          "canonical_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00001-d7d7be",
+            "OBSERVED_IN"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00001-d7d7be",
+              "OBSERVED_IN"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00002-7960c3",
+            "OBSERVED_IN"
+          ],
+          "canonical_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00002-7960c3",
+            "OBSERVED_IN"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00002-7960c3",
+              "OBSERVED_IN"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00003-2d955c",
+            "OBSERVED_IN"
+          ],
+          "canonical_relationship": [
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "EVT-NET-wireshark_packets-P00003-2d955c",
+            "OBSERVED_IN"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "EVT-NET-wireshark_packets-P00003-2d955c",
+              "OBSERVED_IN"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-PROC-procmon_events-R00006-301e18",
+            "EVT-PROC-procmon_events-R00008-439fad",
+            "SPAWNED"
+          ],
+          "canonical_relationship": [
+            "EVT-PROC-sysmon_events-R00001-bc2d92",
+            "EVT-PROC-sysmon_events-R00003-ea8b0f",
+            "SPAWNED"
+          ],
+          "strict_event_id_match": false,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-procmon_events-R00008-439fad",
+              "SPAWNED"
+            ],
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-PROC-sysmon_events-R00003-ea8b0f",
+              "SPAWNED"
+            ]
+          ]
+        },
+        {
+          "expected_relationship": [
+            "EVT-PROC-sysmon_events-R00001-bc2d92",
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "CONNECTED_TO"
+          ],
+          "canonical_relationship": [
+            "EVT-PROC-sysmon_events-R00001-bc2d92",
+            "EVT-NET-sysmon_events-R00002-d142d5",
+            "CONNECTED_TO"
+          ],
+          "strict_event_id_match": true,
+          "process_instance_equivalent_match": true,
+          "matching_predicted_relationships": [
+            [
+              "EVT-PROC-sysmon_events-R00001-bc2d92",
+              "EVT-NET-sysmon_events-R00002-d142d5",
+              "CONNECTED_TO"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "database_writes": false,
+    "ground_truth_modifications": false,
+    "evidence_modifications": false,
+    "existing_reports_overwritten": false
+  }
+}
